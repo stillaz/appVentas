@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Productos</ion-title>
+    <ion-menu-button slot="end" color="primary" *ngIf="ventas">
+      <ion-icon name="cart"></ion-icon>
+      <ion-badge color="danger" *ngIf="cantidad">{{cantidad}}</ion-badge>
+    </ion-menu-button>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-segment (ionChange)="updateProductosGrupo($event)">
+      <ion-segment-button [value]="0" checked>
+        Todos
+      </ion-segment-button>
+      <ion-segment-button *ngFor="let grupo of grupos" [value]="grupo.id">
+        {{grupo.nombre}}
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngFor="let grupo of gruposProducto">
+    <ion-item-group>
+      <ion-item-divider *ngIf="agrupar" sticky>
+        <ion-label>{{grupo.grupo.nombre}}</ion-label>
+      </ion-item-divider>
+
+      <ion-grid>
+        <ion-row>
+          <ion-col size-lg="3" size-md="4" *ngFor="let producto of grupo.productos">
+            <ion-card style="margin: 0px;" (click)="ventas ? agregar(producto) : ver(producto.id)">
+              <ion-card-header text-wrap>
+                {{producto.nombre}}
+              </ion-card-header>
+              <ion-card-content style="text-align: right; padding: 0;" *ngIf="producto.imagen">
+                <img [src]="producto.imagen">
+                <ion-text color="tertiary">
+                  <h2 style="margin: 10px; font-weight: bold;">{{producto.precio | currency : 'COP' : 'symbol' }}</h2>
+                </ion-text>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item-group>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!ventas">
+    <ion-fab-button color="primary" (click)="ver()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
