@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CompraService } from '../compra.service';
 import { VentaOptions } from '../venta-options';
 import { AngularFirestore } from '@angular/fire/firestore';
-import * as moment from 'moment';
+import moment from 'moment';
 import { AlertController, Platform, NavController, ToastController } from '@ionic/angular';
 import { EstadoVenta } from '../estado-venta.enum';
 import { Printer, PrintOptions } from '@ionic-native/printer/ngx';
+import printJS, { Configuration } from 'print-js';
 
 
 
@@ -33,12 +34,12 @@ export class MenuCarritoPage implements OnInit {
     this.updateVenta();
   }
 
-  private finalizar() {
+  private finalizar(estado: string) {
     const fecha = new Date();
     const batch = this.angularFirestore.firestore.batch();
     this.venta.estado = EstadoVenta.PAGADO;
     this.venta.fecha = fecha;
-    this.registrarVenta(batch, fecha);
+    this.registrarVenta(batch, fecha, estado);
   }
 
   private imprimir() {
@@ -58,17 +59,23 @@ export class MenuCarritoPage implements OnInit {
         }).catch(err => { return err });
       }).catch(err => this.presentAlertError(err, 'imprimir'));
     } else {
+      const configuracion = {
+        documentTitle: '',
+        header: '',
+        printable: this.factura(),
+        type: 'raw-html'
+      } as Configuration;
+      printJS(configuracion);
       this.presentToast('Se ha registrado la venta');
-      
     }
   }
 
   private factura() {
-    let documento = `<div align="center">' +
+    let documento = `<div align="center">
       Empresa 
       <br/>
       <br/> 
-      Venta No. ' ${this.venta.id}
+      Venta No. ${this.venta.id}
       <br/>
       Fecha: ${this.venta.fecha.toLocaleString()}
       <br/>
@@ -81,16 +88,17 @@ export class MenuCarritoPage implements OnInit {
       <th>Cantidad</th>
       <th>Precio</th>
       <th>Subtotal</th>
-      </tr>`;
-    this.venta.detalle.forEach(item => {
-      documento += `<tr>
-        <td> ${item.producto.nombre} </td>
-        <td align="right"> ${item.cantidad} </td>
-        <td align="right"> $ ${item.producto.precio} </td>
-        <td align="right"> $ ${item.subtotal} </td>
-        </tr>`;
-    });
-    documento += `<tr>
+      </tr> 
+      ${this.venta.detalle.map(item => {
+      `<tr>
+            <td> ${item.producto.nombre} </td>
+            <td align="right"> ${item.cantidad} </td>
+            <td align="right"> $ ${item.producto.precio} </td>
+            <td align="right"> $ ${item.subtotal} </td>
+            </tr>`;
+    }).toString()
+      }
+      <tr>
       <td colspan="4" align="right"><strong>Total: $</strong> ${this.venta.total} </td>
       </tr>
       <tr>
@@ -101,6 +109,7 @@ export class MenuCarritoPage implements OnInit {
       </tr>
       </table>
       <div style="width: 100%; text-align: center">Turno: ${this.venta.turno}</div>`;
+      
     return documento;
   }
 
@@ -135,6 +144,10 @@ export class MenuCarritoPage implements OnInit {
     });
   }
 
+  public pendiente() {
+    this.finalizar(EstadoVenta.ENTREGADO);
+  }
+
   private async presentAlertCancelar() {
     const alert = await this.alertController.create({
       header: 'Cancelar venta',
@@ -165,7 +178,7 @@ export class MenuCarritoPage implements OnInit {
       buttons: [{
         text: 'Continuar',
         handler: () => {
-          this.finalizar();
+          this.finalizar(EstadoVenta.PAGADO);
         }
       }]
     });
@@ -197,7 +210,93 @@ export class MenuCarritoPage implements OnInit {
     return await alert.present();
   }
 
-  private async presentAlertPago() {
+  private async presentToast(mensaje: string) {
+    const toast = await this.toastController.create({
+      message: mensaje,
+      duration: 3000
+    });
+    toast.present();
+
+    this.navController.back();
+  }
+
+  public async quitar(idproducto: string, nombre: string, cantidad: number) {
+    const alert = await this.alertController.create({
+      header: 'Quitar ítem',
+      message: `¿Desea quitar ${cantidad} ${nombre}?`,
+      buttons: [{
+        text: 'Si',
+        handler: () => {
+          this.compraService.quitar(idproducto);
+        }
+      }, 'No']
+    });
+
+    await alert.present();
+  }
+
+  private registrarReporte(batch: firebase.firestore.WriteBatch, fecha: Date, finalizar: boolean) {
+    const recibido = finalizar && this.venta.recibido;
+    const fechaMes = moment(fecha).startOf('month').toDate().getTime().toString();
+    const reporteDoc = this.angularFirestore.doc(`reportes/${fechaMes}`);
+    const usuario = this.venta.usuario;
+    const usuarioReporteDoc = reporteDoc.collection('ventas').doc(usuario.id);
+    batch.set(reporteDoc.ref, { fecha: fecha });
+
+    usuarioReporteDoc.ref.get().then(reporte => {
+      if (reporte.exists) {
+        const totalActual = reporte.get('total');
+        const total = Number(totalActual) + (finalizar && recibido);
+        const cantidadActual = reporte.get('cantidad');
+        const cantidad = Number(cantidadActual) + 1;
+        batch.update(usuarioReporteDoc.ref, {
+          total: total,
+          cantidad: cantidad,
+          fecha: fecha
+        });
+      } else {
+        batch.set(usuarioReporteDoc.ref, {
+          total: recibido,
+          cantidad: 1,
+          fecha: fecha,
+          usuario: usuario
+        });
+      }
+
+      this.updateIDS(batch, fecha);
+    });
+  }
+
+  private registrarVenta(batch: firebase.firestore.WriteBatch, fecha: Date, estado: string) {
+    const finalizar = estado === EstadoVenta.PAGADO;
+    const recibido: number = finalizar && this.venta.recibido;
+    const fechaDia = moment(fecha).startOf('day').toDate().getTime().toString();
+    const ventaDiaDoc = this.angularFirestore.doc<any>(`ventas/${fechaDia}`);
+    const ventaDoc = ventaDiaDoc.collection('ventas').doc(this.venta.id.toString());
+    ventaDiaDoc.ref.get().then(diario => {
+      if (diario.exists) {
+        const totalActual = diario.get('total');
+        const total = Number(totalActual) + (finalizar && recibido);
+        const cantidadActual = diario.get('cantidad');
+        const cantidad = Number(cantidadActual) + 1;
+        batch.update(ventaDiaDoc.ref, {
+          total: total,
+          cantidad: cantidad,
+          fecha: fecha
+        });
+      } else {
+        batch.set(ventaDiaDoc.ref, {
+          total: finalizar && recibido,
+          cantidad: 1,
+          fecha: fecha
+        });
+      }
+      batch.set(ventaDoc.ref, this.venta);
+      this.registrarReporte(batch, fecha, finalizar);
+    });
+  }
+
+  public async terminar() {
     const total = this.venta.total.toLocaleString('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -225,7 +324,7 @@ export class MenuCarritoPage implements OnInit {
           if (devuelta > 0) {
             this.presentAlertDevolucion();
           } else if (devuelta === 0) {
-            this.finalizar();
+            this.finalizar(EstadoVenta.PAGADO);
           }
         }
       }, {
@@ -234,95 +333,6 @@ export class MenuCarritoPage implements OnInit {
       }]
     });
     return await alert.present();
-  }
-
-  private async presentToast(mensaje: string) {
-    const toast = await this.toastController.create({
-      message: mensaje,
-      duration: 3000
-    });
-    toast.present();
-
-    this.navController.back();
-  }
-
-  public async quitar(idproducto: string, nombre: string, cantidad: number) {
-    const alert = await this.alertController.create({
-      header: 'Quitar ítem',
-      message: `¿Desea quitar ${cantidad} ${nombre}?`,
-      buttons: [{
-        text: 'Si',
-        handler: () => {
-          this.compraService.quitar(idproducto);
-        }
-      }, 'No']
-    });
-
-    await alert.present();
-  }
-
-  private registrarReporte(batch: firebase.firestore.WriteBatch, fecha: Date) {
-    const recibido = this.venta.recibido;
-    const fechaMes = moment(fecha).startOf('month').toDate().getTime().toString();
-    const reporteDoc = this.angularFirestore.doc(`reportes/${fechaMes}`);
-    const usuario = this.venta.usuario;
-    const usuarioReporteDoc = reporteDoc.collection('ventas').doc(usuario.id);
-    batch.set(reporteDoc.ref, { fecha: fecha });
-
-    usuarioReporteDoc.ref.get().then(reporte => {
-      if (reporte.exists) {
-        const totalActual = reporte.get('total');
-        const total = Number(totalActual) + recibido;
-        const cantidadActual = reporte.get('cantidad');
-        const cantidad = Number(cantidadActual) + 1;
-        batch.update(usuarioReporteDoc.ref, {
-          total: total,
-          cantidad: cantidad,
-          fecha: fecha
-        });
-      } else {
-        batch.set(usuarioReporteDoc.ref, {
-          total: recibido,
-          cantidad: 1,
-          fecha: fecha,
-          usuario: usuario
-        });
-      }
-
-      this.updateIDS(batch, fecha);
-    });
-  }
-
-  private registrarVenta(batch: firebase.firestore.WriteBatch, fecha: Date) {
-    const recibido = this.venta.recibido;
-    const fechaDia = moment(fecha).startOf('day').toDate().getTime().toString();
-    const ventaDiaDoc = this.angularFirestore.doc<any>(`ventas/${fechaDia}`);
-    const ventaDoc = ventaDiaDoc.collection('ventas').doc(this.venta.id.toString());
-    ventaDiaDoc.ref.get().then(diario => {
-      if (diario.exists) {
-        const totalActual = diario.get('total');
-        const total = Number(totalActual) + recibido;
-        const cantidadActual = diario.get('cantidad');
-        const cantidad = Number(cantidadActual) + 1;
-        batch.update(ventaDiaDoc.ref, {
-          total: total,
-          cantidad: cantidad,
-          fecha: fecha
-        });
-      } else {
-        batch.set(ventaDiaDoc.ref, {
-          total: recibido,
-          cantidad: 1,
-          fecha: fecha
-        });
-      }
-      batch.set(ventaDoc.ref, this.venta);
-      this.registrarReporte(batch, fecha);
-    });
-  }
-
-  public terminar() {
-    this.presentAlertPago();
   }
 
   private updateIDS(batch: firebase.firestore.WriteBatch, fecha: Date) {

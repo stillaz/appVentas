@@ -41,6 +41,9 @@
       <ion-button [disabled]="!venta.detalle[0]" expand="block" color="secondary" (click)="terminar()">
         Finalizar
       </ion-button>
+      <ion-button [disabled]="!venta.detalle[0]" expand="block" color="warning" (click)="pendiente()">
+        Pendiente pago
+      </ion-button>
       <ion-button expand="block" color="danger" (click)="cancelar()">Cancelar</ion-button>
     </ion-footer>
   </ion-menu>

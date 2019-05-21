@@ -34,6 +34,7 @@
     "core-js": "^2.5.4",
     "firebase": "^6.0.2",
     "ionic4-date-picker": "^0.1.0",
+    "print-js": "^1.0.57",
     "rxjs": "~6.5.1",
     "tslib": "^1.9.0",
     "zone.js": "~0.8.29"

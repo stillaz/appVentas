@@ -1,7 +1,8 @@
 export enum EstadoVenta {
-    PENDIENTE = "Pendiente",
-    PAGADO = "Pagado",
-    PREPARACION = "Preparacion",
+    ANULADO = "Anulado",
+    ENTREGADO = "Pendiente pago",
     FINALIZADO = "Finalizado",
-    ANULADO = "Anulado"
+    PAGADO = "Pagado",
+    PENDIENTE = "Pendiente",
+    PREPARADO = "Preparado"
 }
