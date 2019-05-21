@@ -88,17 +88,16 @@ export class MenuCarritoPage implements OnInit {
       <th>Cantidad</th>
       <th>Precio</th>
       <th>Subtotal</th>
-      </tr> 
-      ${this.venta.detalle.map(item => {
-      `<tr>
-            <td> ${item.producto.nombre} </td>
-            <td align="right"> ${item.cantidad} </td>
-            <td align="right"> $ ${item.producto.precio} </td>
-            <td align="right"> $ ${item.subtotal} </td>
-            </tr>`;
-    }).toString()
-      }
-      <tr>
+      </tr>`;
+    this.venta.detalle.forEach(item => {
+      documento += `<tr>
+        <td> ${item.producto.nombre} </td>
+        <td align="right"> ${item.cantidad} </td>
+        <td align="right"> $ ${item.producto.precio} </td>
+        <td align="right"> $ ${item.subtotal} </td>
+        </tr>`;
+    });
+    documento += `<tr>
       <td colspan="4" align="right"><strong>Total: $</strong> ${this.venta.total} </td>
       </tr>
       <tr>
@@ -109,7 +108,6 @@ export class MenuCarritoPage implements OnInit {
       </tr>
       </table>
       <div style="width: 100%; text-align: center">Turno: ${this.venta.turno}</div>`;
-      
     return documento;
   }
 
