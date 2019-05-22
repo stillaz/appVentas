@@ -1,6 +1,7 @@
 <ion-menu side="start" menuId="first">
   <ion-header>
     <ion-toolbar color="primary">
+      <ion-back-button slot="start"></ion-back-button>
       <ion-title>Periocidad</ion-title>
     </ion-toolbar>
   </ion-header>
@@ -23,8 +24,9 @@
   </ion-toolbar>
 
   <ion-toolbar [ngSwitch]="periocidad" class="center">
-    <ion-select *ngSwitchCase="'MENSUAL'" fill="clear" interface="action-sheet" [interfaceOptions]="customActionSheetOptions"
-      [(ngModel)]="mesSeleccionado" #C (ionChange)="seleccionarMes(C.value)">
+    <ion-select *ngSwitchCase="'MENSUAL'" fill="clear" interface="action-sheet"
+      [interfaceOptions]="customActionSheetOptions" [(ngModel)]="mesSeleccionado" #C
+      (ionChange)="seleccionarMes(C.value)">
       <ion-select-option *ngFor="let fecha of fechas" [value]="fecha">{{fecha.texto}}</ion-select-option>
     </ion-select>
 

@@ -9,16 +9,20 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       { path: 'producto', loadChildren: '../producto/producto.module#ProductoPageModule' },
-      { path: 'pendiente', loadChildren: './pendiente/pendiente.module#PendientePageModule' },
+      { path: 'pendiente', loadChildren: '../pendiente/pendiente.module#PendientePageModule' },
       {
         path: 'venta',
         children: [
-          { path: 'detalle', loadChildren: '../menu-carrito/menu-carrito.module#MenuCarritoPageModule' }, {
+          { path: 'detalle', loadChildren: '../menu-carrito/menu-carrito.module#MenuCarritoPageModule' },
+          {
             path: 'reporte',
             children: [
               { path: '', loadChildren: '../reporte/reporte.module#ReportePageModule' },
               { path: 'detalle', loadChildren: '../detalle-reporte/detalle-reporte.module#DetalleReportePageModule' }
             ]
+          }, {
+            path: 'pendiente',
+            redirectTo: '/tabs/pendiente'
           }, { path: 'reporte-producto', loadChildren: '../reporte-producto/reporte-producto.module#ReporteProductoPageModule' },
           { path: '', loadChildren: '../venta/venta.module#VentaPageModule' }
         ]

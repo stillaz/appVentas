@@ -5,7 +5,7 @@ export interface VentaOptions {
     id: number,
     turno: number,
     estado: string,
-    fecha: Date,
+    fecha: any,
     detalle: [{
         producto: ProductoOptions,
         cantidad: number,

@@ -161,7 +161,7 @@ export class ReporteProductoPage implements OnInit {
         productosVenta.forEach(productoVenta => {
           const reporteProducto = detalleReporte.find(reporte => reporte.producto.id === productoVenta.producto.id);
           if (reporteProducto) {
-            reporteProducto.cantidad += reporteProducto.cantidad;
+            reporteProducto.cantidad += Number(productoVenta.cantidad);
           } else {
             detalleReporte.push({
               cantidad: productoVenta.cantidad,
@@ -199,7 +199,7 @@ export class ReporteProductoPage implements OnInit {
           productosVenta.forEach(productoVenta => {
             const reporteProducto = detalleReporte.find(reporte => reporte.producto.id === productoVenta.producto.id);
             if (reporteProducto) {
-              reporteProducto.cantidad += reporteProducto.cantidad;
+              reporteProducto.cantidad += Number(productoVenta.cantidad);
             } else {
               detalleReporte.push({
                 cantidad: productoVenta.cantidad,
@@ -250,7 +250,7 @@ export class ReporteProductoPage implements OnInit {
           productosVenta.forEach(productoVenta => {
             const reporteProducto = detalleReporte.find(reporte => reporte.producto.id === productoVenta.producto.id);
             if (reporteProducto) {
-              reporteProducto.cantidad += reporteProducto.cantidad;
+              reporteProducto.cantidad += Number(productoVenta.cantidad);
             } else {
               detalleReporte.push({
                 cantidad: productoVenta.cantidad,
@@ -291,7 +291,7 @@ export class ReporteProductoPage implements OnInit {
           productosVenta.forEach(productoVenta => {
             const reporteProducto = detalleReporte.find(reporte => reporte.producto.id === productoVenta.producto.id);
             if (reporteProducto) {
-              reporteProducto.cantidad += reporteProducto.cantidad;
+              reporteProducto.cantidad += Number(productoVenta.cantidad);
             } else {
               detalleReporte.push({
                 cantidad: productoVenta.cantidad,

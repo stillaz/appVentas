@@ -1,9 +1,29 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Pendiente pago</ion-title>
+    <ion-title>Pendientes de pago</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-list>
+    <ion-item *ngFor="let venta of pendientes">
+      <ion-text>
+        <p style="margin: 2px;">
+          Turno N° {{venta.turno}}
+        </p>
 
+        <ion-note>
+          {{venta.usuario.nombre}}
+        </ion-note>
+      </ion-text>
+
+      <ion-text style="margin-left: 10px;" color="danger">
+        <b>{{venta.total | currency : 'COP': 'symbol'}}</b>
+      </ion-text>
+
+      <ion-button slot="end" color="primary" (click)="finalizar(venta)">
+        Finalizar
+      </ion-button>
+    </ion-item>
+  </ion-list>
 </ion-content>

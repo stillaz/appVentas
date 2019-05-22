@@ -12,9 +12,9 @@ export class UdpCurrencyPipe implements PipeTransform {
     }
     const res = isNumber(value) ? value : parseInt(value.replace(/[^\d]/g, ""));
     if (!isNaN(res)) {
-      return res.toLocaleString('en-US', {
+      return res.toLocaleString('es-CO', {
         style: 'currency',
-        currency: 'USD',
+        currency: 'COP',
         maximumSignificantDigits: 8,
         minimumFractionDigits: 0,
         maximumFractionDigits: 0

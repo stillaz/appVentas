@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { VentaOptions } from '../venta-options';
 import { EstadoVenta } from '../estado-venta.enum';
+import { ModalController } from '@ionic/angular';
+import { PagoPage } from '../pago/pago.page';
 
 @Component({
   selector: 'app-pendiente',
@@ -10,25 +12,45 @@ import { EstadoVenta } from '../estado-venta.enum';
 })
 export class PendientePage implements OnInit {
 
+  public pendientes: VentaOptions[];
+
   constructor(
-    private angularFirestore: AngularFirestore
+    private angularFirestore: AngularFirestore,
+    private modalController: ModalController
   ) { }
 
   ngOnInit() {
+    this.updatePendientes();
   }
 
-  private loadVentasDia(id: string){
+  public async finalizar(pendiente: VentaOptions) {
+    const modal = await this.modalController.create({
+      component: PagoPage,
+      componentProps: {
+        venta: pendiente
+      }
+    });
+
+    modal.present();
+  }
+
+  private loadVentasDia(id: string) {
     const ventasPendientesCollection = this.angularFirestore.collection<VentaOptions>(`ventas/${id}/ventas`, ref => ref.where('estado', '==', EstadoVenta.ENTREGADO));
-    ventasPendientesCollection.valueChanges().subscribe(ventas => {
-      ventas
+    return new Promise<VentaOptions[]>(resolve => {
+      ventasPendientesCollection.valueChanges().subscribe(ventas => {
+        resolve(ventas);
+      });
     });
   }
 
   public updatePendientes() {
-    const pendientesCollection = this.angularFirestore.collection<any>('ventas', ref => ref.where('pendientes', '>=', 1));
-    pendientesCollection.get().subscribe(pendientes => {
+    const pendientesCollection = this.angularFirestore.collection<any>('ventas', ref => ref.where('pendiente', '>=', 1));
+    pendientesCollection.valueChanges().subscribe(pendientes => {
+      this.pendientes = [];
       pendientes.forEach(dia => {
-        this.loadVentasDia(dia.id);
+        this.loadVentasDia(dia.id).then(ventas => {
+          this.pendientes.push.apply(this.pendientes, ventas);
+        });
       });
     });
   }
