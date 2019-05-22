@@ -37,7 +37,6 @@ export class MenuCarritoPage implements OnInit {
   private finalizar(estado: string) {
     const fecha = new Date();
     const batch = this.angularFirestore.firestore.batch();
-    this.venta.estado = EstadoVenta.PAGADO;
     this.venta.fecha = fecha;
     this.registrarVenta(batch, fecha, estado);
   }
@@ -194,14 +193,18 @@ export class MenuCarritoPage implements OnInit {
     alert.present();
   }
 
-  private async presentAlertFinalizar() {
+  private async presentAlertFinalizar(finalizar: boolean) {
     const alert = await this.alertController.create({
       header: `Venta ${this.venta.id}`,
       subHeader: `Turno ${this.venta.turno}`,
       buttons: [{
         text: 'Continuar',
         handler: () => {
-          this.imprimir();
+          if (finalizar) {
+            this.imprimir();
+          } else {
+            this.presentToast('Se ha registrado la venta');
+          }
         }
       }]
     });
@@ -261,7 +264,7 @@ export class MenuCarritoPage implements OnInit {
         });
       }
 
-      this.updateIDS(batch, fecha);
+      this.updateIDS(batch, fecha, finalizar);
     });
   }
 
@@ -271,22 +274,27 @@ export class MenuCarritoPage implements OnInit {
     const fechaDia = moment(fecha).startOf('day').toDate().getTime().toString();
     const ventaDiaDoc = this.angularFirestore.doc<any>(`ventas/${fechaDia}`);
     const ventaDoc = ventaDiaDoc.collection('ventas').doc(this.venta.id.toString());
+    this.venta.estado = finalizar ? EstadoVenta.PAGADO : estado;
     ventaDiaDoc.ref.get().then(diario => {
       if (diario.exists) {
         const totalActual = diario.get('total');
         const total = Number(totalActual) + (finalizar && recibido);
         const cantidadActual = diario.get('cantidad');
         const cantidad = Number(cantidadActual) + 1;
+        const pendienteActual: number = finalizar && diario.get('pendiente');
+        const pendiente: number = finalizar && Number(pendienteActual) + 1;
         batch.update(ventaDiaDoc.ref, {
           total: total,
           cantidad: cantidad,
-          fecha: fecha
+          fecha: fecha,
+          pendiente: pendiente
         });
       } else {
         batch.set(ventaDiaDoc.ref, {
           total: finalizar && recibido,
           cantidad: 1,
-          fecha: fecha
+          fecha: fecha,
+          pendiente: finalizar && 1
         });
       }
       batch.set(ventaDoc.ref, this.venta);
@@ -333,13 +341,13 @@ export class MenuCarritoPage implements OnInit {
     return await alert.present();
   }
 
-  private updateIDS(batch: firebase.firestore.WriteBatch, fecha: Date) {
+  private updateIDS(batch: firebase.firestore.WriteBatch, fecha: Date, finalizar: boolean) {
     const turnoDoc = this.angularFirestore.doc('configuracion/turno');
     const ventaDDoc = this.angularFirestore.doc('configuracion/venta');
     batch.update(turnoDoc.ref, { id: this.venta.turno, actualizacion: fecha });
     batch.update(ventaDDoc.ref, { id: this.venta.id, actualizacion: fecha });
     batch.commit().then(() => {
-      this.presentAlertFinalizar();
+      this.presentAlertFinalizar(finalizar);
     }).catch(err => {
       this.presentAlertError(err, 'registrar');
     });
