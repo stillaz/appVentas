@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, PopoverController, AlertController } from '@ionic/angular';
 import { ProductoOptions } from '../producto-options';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { DetalleProductoPage } from '../detalle-producto/detalle-producto.page';
@@ -7,6 +7,9 @@ import { GrupoOptions } from '../grupo-options';
 import { Router } from '@angular/router';
 import { CompraService } from '../compra.service';
 import { VentaOptions } from '../venta-options';
+import { MenuComponent } from './menu/menu.component';
+import { GrupoService } from '../grupo.service';
+import { FrontService } from '../front.service';
 
 @Component({
   selector: 'app-producto',
@@ -36,9 +39,13 @@ export class ProductoPage implements OnInit {
   ];
 
   constructor(
+    private alertController: AlertController,
     private angularFirestore: AngularFirestore,
-    public compraService: CompraService,
-    private modalCtrl: ModalController,
+    private compraService: CompraService,
+    private fronService: FrontService,
+    private grupoService: GrupoService,
+    private modalController: ModalController,
+    private popoverController: PopoverController,
     private router: Router
   ) { }
 
@@ -53,8 +60,57 @@ export class ProductoPage implements OnInit {
     });
   }
 
-  public agregar(producto: ProductoOptions) {
-    this.compraService.agregar(producto);
+  public async agregar(producto: ProductoOptions) {
+    const combos = producto.combos;
+    if (!combos || !combos[0]) {
+      this.compraService.agregar(producto);
+    } else if (combos && combos.length === 1) {
+      producto.combos[0].activo = true;
+      this.compraService.agregar(producto);
+    } else if (combos) {
+      producto.combos.forEach(combo => combo.activo = false);
+      await this.presentCombos(producto);
+    }
+  }
+
+  public async menu(ev: any) {
+    const popover = await this.popoverController.create({
+      component: MenuComponent,
+      event: ev,
+      translucent: true
+    });
+    return await popover.present();
+  }
+
+  private async presentCombos(producto: ProductoOptions) {
+    const combos = producto.combos;
+    const inputs: any[] = combos.map(combo => {
+      return {
+        label: combo.nombre,
+        type: 'radio',
+        value: combo.id,
+      }
+    });
+
+    const alert = await this.alertController.create({
+      header: 'Combos',
+      message: 'Selecciona un combo',
+      inputs: inputs,
+      buttons: [{
+        text: 'Continuar',
+        handler: data => {
+          if (data) {
+            const combo = producto.combos.find(combo => combo.id === data);
+            combo.activo = true;
+            this.compraService.agregar(producto);
+          } else {
+            this.fronService.presentAlert('Seleccionar combo', 'Debes seleccionar un combo de la lista');
+          }
+        }
+      }, 'Cancelar']
+    });
+
+    alert.present();
   }
 
   private updateGrupos() {
@@ -66,14 +122,18 @@ export class ProductoPage implements OnInit {
 
   public updateProductosGrupo(event: any) {
     const seleccionado = event.detail.value;
-    let productoCollection: AngularFirestoreCollection<ProductoOptions>;
-    if (seleccionado == "0") {
-      productoCollection = this.angularFirestore.collection('productos');
+    const productoCollection = this.angularFirestore.collection<ProductoOptions>('productos', ref => {
       this.agrupar = true;
-    } else {
-      productoCollection = this.angularFirestore.collection('productos', ref => ref.where('grupo.id', "==", seleccionado));
-      this.agrupar = false;
-    }
+      let query: any;
+      if (this.ventas) {
+        query = ref.where('activo', '==', true);
+      }
+      if (seleccionado != "0") {
+        query = query ? query.where('grupo.id', "==", seleccionado) : ref.where('grupo.id', "==", seleccionado);
+        this.agrupar = false;
+      }
+      return query || ref;
+    });
 
     this.updateProductos(productoCollection);
   }
@@ -81,29 +141,12 @@ export class ProductoPage implements OnInit {
   private updateProductos(productoCollection: AngularFirestoreCollection<ProductoOptions>) {
     productoCollection.valueChanges().subscribe(productos => {
       this.productos = productos;
-      this.updateGruposProductos();
+      this.gruposProducto = this.grupoService.agrupar(productos);
     });
-  }
-
-  private updateGruposProductos() {
-    const grupos = [];
-    this.gruposProducto = [];
-    this.productos.forEach(producto => {
-      const grupo = producto.grupo;
-      if (grupos[grupo.id] === undefined) {
-        grupos[grupo.id] = [];
-      }
-      grupos[grupo.id].push(producto);
-    });
-
-    for (let grupo in grupos) {
-      const dataGrupo = this.grupos.find(todos => todos.id === grupo);
-      this.gruposProducto.push({ grupo: dataGrupo, productos: grupos[grupo] });
-    }
   }
 
   public async ver(idproducto: string) {
-    const modal = await this.modalCtrl.create({
+    const modal = await this.modalController.create({
       component: DetalleProductoPage,
       componentProps: { idproducto: idproducto }
     });

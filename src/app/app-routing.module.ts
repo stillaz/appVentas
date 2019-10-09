@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
   { path: '', loadChildren: './tabs/tabs.module#TabsPageModule' },
-  { path: 'logueo', loadChildren: './logueo/logueo.module#LogueoPageModule' },
+  { path: 'logueo', loadChildren: './logueo/logueo.module#LogueoPageModule' }
 ];
 
 @NgModule({

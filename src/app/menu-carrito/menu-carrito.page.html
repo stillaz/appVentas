@@ -1,34 +1,36 @@
 <ion-split-pane when="md">
-  <ion-menu contentId="content">
+  <ion-menu contentId="content" side="end">
     <ion-header>
       <ion-toolbar>
-        <ion-title>Datos de la venta</ion-title>
+        <ion-title>Venta</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content>
-      <ion-grid id="detalle">
-        <ion-row *ngFor="let item of venta.detalle">
-          <ion-col size="1">
-            <ion-text>{{item.cantidad}}</ion-text>
-          </ion-col>
+      <ion-item no-padding *ngFor="let item of venta.detalle">
+        <ion-grid no-padding id="detalle">
+          <ion-row>
+            <ion-col size="2">
+              <ion-text>{{item.cantidad}}</ion-text>
+            </ion-col>
 
-          <ion-col size="7">
-            <ion-text>{{item.producto.nombre}}</ion-text>
-          </ion-col>
+            <ion-col size="6">
+              <ion-text>{{item.producto.nombre}}</ion-text>
+            </ion-col>
 
-          <ion-col size="3" style="padding-left: 0; padding-right: 0px;">
-            <ion-text>{{item.subtotal | currency : 'COP': 'symbol'}}</ion-text>
-          </ion-col>
+            <ion-col size="3" style="padding-left: 0; padding-right: 0px;">
+              <ion-text>{{item.subtotal | currency : 'COP': 'symbol'}}</ion-text>
+            </ion-col>
 
-          <ion-col size="1">
-            <ion-button no-padding size="small" fill="clear" color="danger"
-              (click)="quitar(item.producto.id, item.producto.nombre, item.cantidad)">
-              <ion-icon name="close"></ion-icon>
-            </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+            <ion-col size="1">
+              <ion-button no-padding size="small" fill="clear" color="danger"
+                (click)="quitar(item.producto.id, item.producto.nombre, item.cantidad)">
+                <ion-icon name="trash"></ion-icon>
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
     </ion-content>
 
     <ion-footer>

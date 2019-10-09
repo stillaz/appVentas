@@ -5,7 +5,7 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/fire
 import { GrupoOptions } from '../grupo-options';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { AngularFireStorage } from '@angular/fire/storage';
-import * as firebase from 'firebase';
+import firebase from 'firebase';
 import { finalize } from 'rxjs/operators';
 
 @Component({

@@ -50,7 +50,7 @@
 
         <ion-item>
           <ion-label position="stacked">Grupo:</ion-label>
-          <ion-select required formControlName="grupo" interface="action-sheet">
+          <ion-select required formControlName="grupo" interface="action-sheet" [compareWith]="compareWithFn">
             <ion-select-option *ngFor="let grupo of grupos" [value]="grupo">{{grupo.nombre}}</ion-select-option>
           </ion-select>
         </ion-item>
@@ -69,12 +69,26 @@
           <p>El precio del producto no es válido</p>
         </ion-item>
 
+        <ion-item>
+          <ion-label position="stacked">Combos:</ion-label>
+          <ion-select formControlName="combos" multiple="true" [compareWith]="compareWithFn">
+            <ion-select-option *ngFor="let combo of combos" [value]="combo">{{combo.nombre}}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Activo:</ion-label>
+          <ion-toggle formControlName="activo"></ion-toggle>
+        </ion-item>
+
         <ion-item *ngIf="todo.controls.imagen.value">
           <img [src]="todo.controls.imagen.value" style="max-width:300px; margin: 0 auto" />
         </ion-item>
 
         <ion-item *ngIf="!mobile && todo.controls.id.value">
-          <label class="item item-input"> <input type="file" id="upimgfile" name="uploadfile" (change)="seleccionarImagen($event)">
+          <label class="item item-input"> <input type="file" id="upimgfile" name="uploadfile"
+              (change)="seleccionarImagen($event)">
           </label>
         </ion-item>
 

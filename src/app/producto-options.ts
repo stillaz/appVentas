@@ -1,11 +1,17 @@
 import { GrupoOptions } from "./grupo-options";
+import { ComboOptions } from './combo-options';
 
 export interface ProductoOptions {
-    id: string,
-    nombre: string,
+    activo: boolean,
+    cantidad: number,
+    combos: ComboOptions[],
     descripcion: string,
+    estadoinventario: string,
+    fechainventario: any,
     grupo: GrupoOptions,
-    precio: number,
+    id: string,
     imagen: string,
-    activo: boolean
+    inventario: string
+    nombre: string,
+    precio: number
 }

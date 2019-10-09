@@ -5,6 +5,11 @@
       <ion-icon name="cart"></ion-icon>
       <ion-badge color="danger" *ngIf="cantidad">{{cantidad}}</ion-badge>
     </ion-menu-button>
+    <ion-buttons slot="end">
+      <ion-button (click)="menu($event)">
+        <ion-icon name="more"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 
   <ion-toolbar>
@@ -20,24 +25,48 @@
 </ion-header>
 
 <ion-content>
-  <ion-list *ngFor="let grupo of gruposProducto">
+  <ion-list no-padding *ngFor="let grupo of gruposProducto">
     <ion-item-group>
-      <ion-item-divider *ngIf="agrupar" sticky>
+      <ion-item-divider color="medium" *ngIf="agrupar">
         <ion-label>{{grupo.grupo.nombre}}</ion-label>
       </ion-item-divider>
 
       <ion-grid>
-        <ion-row>
-          <ion-col size-lg="3" size-md="4" *ngFor="let producto of grupo.productos">
+        <ion-row *ngIf="!ventas">
+          <ion-col size-lg="3" size-md="4" *ngFor="let producto of grupo.items">
             <ion-card style="margin: 0px;" (click)="ventas ? agregar(producto) : ver(producto.id)">
-              <ion-card-header text-wrap>
+              <ion-card-header [color]="producto.activo ? 'primary' : 'medium'" text-wrap>
                 {{producto.nombre}}
               </ion-card-header>
-              <ion-card-content style="text-align: right; padding: 0;" *ngIf="producto.imagen">
+              <ion-card-content style="padding: 0;" *ngIf="producto.imagen">
                 <img [src]="producto.imagen">
-                <ion-text color="tertiary">
-                  <h2 style="margin: 10px; font-weight: bold;">{{producto.precio | currency : 'COP' : 'symbol' }}</h2>
-                </ion-text>
+                <ion-item>
+                  <ion-note slot="start">Disponible {{producto.cantidad || 0}}</ion-note>
+                  <ion-text color="tertiary" slot="end">
+                    <h2 style="font-weight: bold;">
+                      {{producto.precio | currency : 'COP' : 'symbol' }}</h2>
+                  </ion-text>
+                </ion-item>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+
+        <ion-row *ngIf="ventas">
+          <ion-col size-lg="4" size-md="4" *ngFor="let producto of grupo.items">
+            <ion-card style="margin: 0px;" (click)="ventas ? agregar(producto) : ver(producto.id)">
+              <ion-card-header color="primary" text-wrap>
+                {{producto.nombre}}
+              </ion-card-header>
+              <ion-card-content style="padding: 0;" *ngIf="producto.imagen">
+                <img [src]="producto.imagen">
+                <ion-item>
+                  <ion-note slot="start">Disponible {{producto.cantidad || 0}}</ion-note>
+                  <ion-text color="tertiary" slot="end">
+                    <h2 style="font-weight: bold;">
+                      {{producto.precio | currency : 'COP' : 'symbol' }}</h2>
+                  </ion-text>
+                </ion-item>
               </ion-card-content>
             </ion-card>
           </ion-col>

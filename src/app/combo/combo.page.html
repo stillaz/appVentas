@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Combos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-list *ngFor="let grupo of gruposCombos">
+    <ion-item-group>
+      <ion-item-divider color="medium">
+        <ion-label>{{grupo.grupo.nombre}}</ion-label>
+      </ion-item-divider>
+    </ion-item-group>
+
+    <ion-list>
+      <ion-item (click)="ver(combo.id)" *ngFor="let combo of grupo.items">
+        <ion-avatar slot="start" *ngIf="combo.imagen">
+          <img [src]="combo.imagen" />
+        </ion-avatar>
+
+        <ion-text>{{combo.nombre}}</ion-text>
+      </ion-item>
+    </ion-list>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="ver()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

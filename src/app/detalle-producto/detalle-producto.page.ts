@@ -6,9 +6,10 @@ import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument 
 import { GrupoOptions } from '../grupo-options';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { AngularFireStorage } from '@angular/fire/storage';
-import * as firebase from 'firebase';
+import firebase from 'firebase';
 import { finalize } from 'rxjs/operators';
 import { isNumber } from 'util';
+import { ComboOptions } from '../combo-options';
 
 @Component({
   selector: 'app-detalle-producto',
@@ -17,6 +18,7 @@ import { isNumber } from 'util';
 })
 export class DetalleProductoPage implements OnInit {
 
+  public combos: ComboOptions[];
   public todo: FormGroup;
   private producto: ProductoOptions;
   private id: string;
@@ -25,28 +27,39 @@ export class DetalleProductoPage implements OnInit {
   public grupos: GrupoOptions[];
   private filePathData: string;
   public loading: any;
+  public compareWithFn = (o1: any, o2: any) => {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
+  };
 
   constructor(
-    public navParams: NavParams,
-    private af: AngularFirestore,
+    private angularFirestore: AngularFirestore,
+    private navParams: NavParams,
     private formBuilder: FormBuilder,
-    public toastCtrl: ToastController,
-    public modalCtrl: ModalController,
-    public alertCtrl: AlertController,
+    private toastCtrl: ToastController,
+    private modalCtrl: ModalController,
+    private alertCtrl: AlertController,
     private camera: Camera,
     private storage: AngularFireStorage,
-    public loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController
   ) { }
 
   ngOnInit() {
     this.id = this.navParams.get('idproducto');
-    this.productoCollection = this.af.collection('productos');
+    this.productoCollection = this.angularFirestore.collection('productos');
     this.updateGrupos();
     this.updateProducto();
   }
 
+  private updateCombos(grupo: string) {
+    const comboCollection = this.angularFirestore
+      .collection<ComboOptions>('combos', ref => ref.where('grupo.id', '==', grupo));
+    comboCollection.valueChanges().subscribe(combos => {
+      this.combos = combos;
+    });
+  }
+
   private updateGrupos() {
-    const grupoCollection = this.af.collection<GrupoOptions>('grupos', ref => ref.orderBy('nombre'));
+    const grupoCollection = this.angularFirestore.collection<GrupoOptions>('grupos', ref => ref.orderBy('nombre'));
     grupoCollection.valueChanges().subscribe(grupos => {
       this.grupos = grupos;
     });
@@ -67,13 +80,22 @@ export class DetalleProductoPage implements OnInit {
 
   private form() {
     this.todo = this.formBuilder.group({
-      id: [{value: this.producto.id, disabled: this.id}, Validators.required, this.valorUnico()],
+      id: [{ value: this.producto.id, disabled: this.id }, Validators.required, this.valorUnico()],
+      combos: [this.producto.combos],
       nombre: [this.producto.nombre, Validators.required],
       descripcion: [this.producto.descripcion, Validators.required],
       grupo: [this.producto.grupo, Validators.required],
       precio: [this.producto.precio, Validators.required],
       imagen: [this.producto.imagen],
-      activo: [this.producto.activo || true]
+      activo: [this.producto ? this.producto.activo : true]
+    });
+    const grupo = this.todo.value.grupo;
+    if (grupo) {
+      this.updateCombos(grupo.id);
+    }
+
+    this.todo.get('grupo').valueChanges.subscribe((data: GrupoOptions) => {
+      this.updateCombos(data.id);
     });
   }
 
@@ -107,6 +129,7 @@ export class DetalleProductoPage implements OnInit {
     this.presentLoading();
     if (this.id) {
       this.productoDoc.update({
+        combos: producto.combos,
         nombre: producto.nombre,
         descripcion: producto.descripcion,
         imagen: producto.imagen,
@@ -214,7 +237,7 @@ export class DetalleProductoPage implements OnInit {
   public updateFilePath() {
     const id = this.todo.value.id;
     this.filePathData = id ? 'productos/' + id : null;
-    this.productoDoc = this.af.doc(this.filePathData);
+    this.productoDoc = this.angularFirestore.doc(this.filePathData);
   }
 
   async presentLoading() {

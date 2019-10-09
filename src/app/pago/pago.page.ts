@@ -7,6 +7,11 @@ import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firest
 import moment from 'moment';
 import { PrintOptions, Printer } from '@ionic-native/printer/ngx';
 import printJS, { Configuration } from 'print-js';
+import { ProductoOptions } from '../producto-options';
+import { InventarioService } from '../inventario.service';
+import { EstadoInventario } from '../estado-inventario.enum';
+import { GrupoService } from '../grupo.service';
+import { GrupoOptions } from '../grupo-options';
 
 @Component({
   selector: 'app-pago',
@@ -25,6 +30,8 @@ export class PagoPage implements OnInit {
   constructor(
     private alertController: AlertController,
     private angularFirestore: AngularFirestore,
+    private grupoService: GrupoService,
+    private inventarioService: InventarioService,
     private modalController: ModalController,
     private navController: NavController,
     private platform: Platform,
@@ -41,6 +48,62 @@ export class PagoPage implements OnInit {
   private actualizarIDS(idventa: number, idturno: number, fecha: Date) {
     this.turnoDocument.update({ id: idturno, actualizacion: fecha });
     this.ventaDocument.update({ id: idventa, actualizacion: fecha });
+  }
+
+  private async actualizarInventario(batch: firebase.firestore.WriteBatch) {
+    const fecha = new Date();
+    const idinventario = this.angularFirestore.createId();
+    const productosDetalle = this.venta.detalle.map(item => item.producto);
+    const grupos = productosDetalle.map(producto => producto.grupo);
+    const subproductosInventario = [];
+    const grupoProductos = await this.loadGrupoProductos(grupos);
+
+    this.venta.detalle.forEach(item => {
+      const producto = item.producto;
+      const combos = producto.combos && producto.combos.find(productocombo => productocombo.activo);
+      combos.productos.forEach(subproducto => {
+        const subproductoInventario = grupoProductos[subproducto.grupo.id].find((grupoProducto: ProductoOptions) => grupoProducto.id === subproducto.id);
+        console.log(subproductoInventario);
+        const cantidadSubproductoVenta = Number(subproducto.cantidad) * Number(item.cantidad);
+        console.log(cantidadSubproductoVenta);
+        const cantidadSubproductoInventario = Number(subproductoInventario.cantidad);
+        console.log(cantidadSubproductoInventario);
+        subproductoInventario.cantidad = cantidadSubproductoInventario - cantidadSubproductoVenta;
+        subproductosInventario[subproducto.id] = subproducto.cantidad;
+      });
+    });
+
+    console.log(subproductosInventario);
+
+    for (let grupo in grupoProductos) {
+      grupoProductos[grupo].forEach((producto: ProductoOptions) => {
+        console.log(producto.cantidad);
+        let cantidadCombos = 0;
+        if (producto.combos) {
+          producto.combos.forEach(combo => {
+            let cantidadCombo = 0;
+            const totalSubproductosInventario = subproductosInventario;
+            let haycombo = false;
+            combo.productos.forEach(productoCombo => {
+              for (let subproducto in totalSubproductosInventario) {
+                if (productoCombo.id === subproducto && productoCombo.cantidad > 0) {
+                  totalSubproductosInventario[subproducto]--;
+                  haycombo = true;
+                } else {
+                  haycombo = false;
+                }
+              }
+
+              cantidadCombo = haycombo && cantidadCombo + 1;
+            });
+            console.log(`Quedan ${cantidadCombo} de ${combo.nombre}`);
+            cantidadCombos += cantidadCombo;
+          });
+        }
+        producto.cantidad = cantidadCombos;
+        console.log(`Quedan ${cantidadCombos} de ${producto.nombre}`)
+      });
+    }
   }
 
   public cancelar() {
@@ -92,8 +155,8 @@ export class PagoPage implements OnInit {
 
   private finalizar() {
     this.modalController.dismiss();
-    const batch = this.angularFirestore.firestore.batch();
-    this.registrarVenta();
+    //this.registrarVenta();
+    this.actualizarInventario(null);
   }
 
   private loadIDS() {
@@ -217,6 +280,28 @@ export class PagoPage implements OnInit {
       printJS(configuracion);
       this.presentToast('Se ha registrado la venta');
     }
+  }
+
+  private loadGrupoProductos(grupos: GrupoOptions[]) {
+    const grupoProductos = [];
+    return new Promise<any[]>(resolve => {
+      grupos.forEach(async (grupo, index) => {
+        grupoProductos[grupo.id] = await this.loadProductos(grupo.id);
+        if (index === (grupos.length - 1)) {
+          resolve(grupoProductos);
+        }
+      });
+    });
+  }
+
+  private loadProductos(grupo: string) {
+    return new Promise<ProductoOptions[]>(resolve => {
+      const productoCollection = this.angularFirestore
+        .collection<ProductoOptions>('productos', ref => ref.where('grupo.id', '==', grupo));
+      productoCollection.valueChanges().subscribe(productos => {
+        resolve(productos);
+      });
+    });
   }
 
   private registrarReporte(batch: firebase.firestore.WriteBatch, fecha: Date) {

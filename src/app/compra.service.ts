@@ -47,7 +47,7 @@ export class CompraService {
       turno: null,
       fecha: null,
       usuario: this.usuarioService.getUsuario()
-    } as VentaOptions;
+    };
   }
 
   public quitar(idproducto: string) {
