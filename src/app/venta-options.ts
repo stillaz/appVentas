@@ -1,16 +1,12 @@
-import { ProductoOptions } from "./producto-options";
 import { UsuarioOptions } from "./usuario-options";
+import { DetalleOptions } from './detalle-options';
 
 export interface VentaOptions {
     id: number,
     turno: number,
     estado: string,
     fecha: any,
-    detalle: [{
-        producto: ProductoOptions,
-        cantidad: number,
-        subtotal: number
-    }],
+    detalle: DetalleOptions[],
     total: number,
     pago: number,
     devuelta: number,

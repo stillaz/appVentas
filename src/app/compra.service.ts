@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { EstadoVenta } from './estado-venta.enum';
-import { UsuarioService } from './usuario.service';
 import { ProductoOptions } from './producto-options';
 import { VentaOptions } from './venta-options';
 import { Subject } from 'rxjs';
@@ -14,7 +13,7 @@ export class CompraService {
 
   public venta: VentaOptions;
 
-  constructor(private usuarioService: UsuarioService) {
+  constructor() {
   }
 
   public agregar(producto: ProductoOptions) {
@@ -46,7 +45,7 @@ export class CompraService {
       estado: EstadoVenta.PENDIENTE,
       turno: null,
       fecha: null,
-      usuario: this.usuarioService.getUsuario()
+      usuario: null
     };
   }
 

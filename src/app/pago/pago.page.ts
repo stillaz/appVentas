@@ -7,11 +7,9 @@ import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firest
 import moment from 'moment';
 import { PrintOptions, Printer } from '@ionic-native/printer/ngx';
 import printJS, { Configuration } from 'print-js';
-import { ProductoOptions } from '../producto-options';
 import { InventarioService } from '../inventario.service';
 import { EstadoInventario } from '../estado-inventario.enum';
-import { GrupoService } from '../grupo.service';
-import { GrupoOptions } from '../grupo-options';
+import { UsuarioService } from '../usuario.service';
 
 @Component({
   selector: 'app-pago',
@@ -30,13 +28,13 @@ export class PagoPage implements OnInit {
   constructor(
     private alertController: AlertController,
     private angularFirestore: AngularFirestore,
-    private grupoService: GrupoService,
     private inventarioService: InventarioService,
     private modalController: ModalController,
     private navController: NavController,
     private platform: Platform,
     private printer: Printer,
     private toastController: ToastController,
+    private usuarioService: UsuarioService,
     private utilsService: UtilsService
   ) { }
 
@@ -48,62 +46,6 @@ export class PagoPage implements OnInit {
   private actualizarIDS(idventa: number, idturno: number, fecha: Date) {
     this.turnoDocument.update({ id: idturno, actualizacion: fecha });
     this.ventaDocument.update({ id: idventa, actualizacion: fecha });
-  }
-
-  private async actualizarInventario(batch: firebase.firestore.WriteBatch) {
-    const fecha = new Date();
-    const idinventario = this.angularFirestore.createId();
-    const productosDetalle = this.venta.detalle.map(item => item.producto);
-    const grupos = productosDetalle.map(producto => producto.grupo);
-    const subproductosInventario = [];
-    const grupoProductos = await this.loadGrupoProductos(grupos);
-
-    this.venta.detalle.forEach(item => {
-      const producto = item.producto;
-      const combos = producto.combos && producto.combos.find(productocombo => productocombo.activo);
-      combos.productos.forEach(subproducto => {
-        const subproductoInventario = grupoProductos[subproducto.grupo.id].find((grupoProducto: ProductoOptions) => grupoProducto.id === subproducto.id);
-        console.log(subproductoInventario);
-        const cantidadSubproductoVenta = Number(subproducto.cantidad) * Number(item.cantidad);
-        console.log(cantidadSubproductoVenta);
-        const cantidadSubproductoInventario = Number(subproductoInventario.cantidad);
-        console.log(cantidadSubproductoInventario);
-        subproductoInventario.cantidad = cantidadSubproductoInventario - cantidadSubproductoVenta;
-        subproductosInventario[subproducto.id] = subproducto.cantidad;
-      });
-    });
-
-    console.log(subproductosInventario);
-
-    for (let grupo in grupoProductos) {
-      grupoProductos[grupo].forEach((producto: ProductoOptions) => {
-        console.log(producto.cantidad);
-        let cantidadCombos = 0;
-        if (producto.combos) {
-          producto.combos.forEach(combo => {
-            let cantidadCombo = 0;
-            const totalSubproductosInventario = subproductosInventario;
-            let haycombo = false;
-            combo.productos.forEach(productoCombo => {
-              for (let subproducto in totalSubproductosInventario) {
-                if (productoCombo.id === subproducto && productoCombo.cantidad > 0) {
-                  totalSubproductosInventario[subproducto]--;
-                  haycombo = true;
-                } else {
-                  haycombo = false;
-                }
-              }
-
-              cantidadCombo = haycombo && cantidadCombo + 1;
-            });
-            console.log(`Quedan ${cantidadCombo} de ${combo.nombre}`);
-            cantidadCombos += cantidadCombo;
-          });
-        }
-        producto.cantidad = cantidadCombos;
-        console.log(`Quedan ${cantidadCombos} de ${producto.nombre}`)
-      });
-    }
   }
 
   public cancelar() {
@@ -154,9 +96,45 @@ export class PagoPage implements OnInit {
   }
 
   private finalizar() {
+    this.venta.usuario = this.usuarioService.getUsuario();
     this.modalController.dismiss();
-    //this.registrarVenta();
-    this.actualizarInventario(null);
+    const fecha = new Date();
+    const pendiente = this.venta.estado === EstadoVenta.ENTREGADO;
+    const fechaVenta = pendiente ? this.venta.fecha.toDate() : fecha;
+    const recibido: number = this.venta.recibido;
+    const idfecha = moment(fechaVenta).startOf('day').toDate().getTime().toString();
+    const ventaDiaDoc = this.angularFirestore.doc<any>(`ventas/${idfecha}`);
+    const ventaDoc = ventaDiaDoc.collection('ventas').doc(this.venta.id.toString());
+    ventaDiaDoc.ref.get().then(async diario => {
+      const batch = this.angularFirestore.firestore.batch();
+      if (diario.exists) {
+        const totalActual = diario.get('total');
+        const total = Number(totalActual) + recibido;
+        const cantidadActual = diario.get('cantidad');
+        const cantidad = Number(cantidadActual) + 1;
+        const pendienteActual = diario.get('pendiente');
+        const pendiente = this.venta.estado === EstadoVenta.ENTREGADO ? Number(pendienteActual) - 1 : pendienteActual;
+        batch.update(ventaDiaDoc.ref, {
+          total: total,
+          cantidad: cantidad,
+          fecha: fecha,
+          pendiente: pendiente
+        });
+      } else {
+        batch.set(ventaDiaDoc.ref, {
+          total: recibido,
+          cantidad: 1,
+          fecha: fecha,
+          id: idfecha,
+          pendiente: 0
+        });
+      }
+      this.venta.fecha = fecha;
+      this.venta.estado = EstadoVenta.PAGADO;
+      batch.set(ventaDoc.ref, this.venta);
+      await this.inventarioService.actualizarInventario(this.venta.detalle, batch, EstadoInventario.VENTA_PRODUCTO);
+      this.registrarReporte(batch, fecha);
+    });
   }
 
   private loadIDS() {
@@ -282,28 +260,6 @@ export class PagoPage implements OnInit {
     }
   }
 
-  private loadGrupoProductos(grupos: GrupoOptions[]) {
-    const grupoProductos = [];
-    return new Promise<any[]>(resolve => {
-      grupos.forEach(async (grupo, index) => {
-        grupoProductos[grupo.id] = await this.loadProductos(grupo.id);
-        if (index === (grupos.length - 1)) {
-          resolve(grupoProductos);
-        }
-      });
-    });
-  }
-
-  private loadProductos(grupo: string) {
-    return new Promise<ProductoOptions[]>(resolve => {
-      const productoCollection = this.angularFirestore
-        .collection<ProductoOptions>('productos', ref => ref.where('grupo.id', '==', grupo));
-      productoCollection.valueChanges().subscribe(productos => {
-        resolve(productos);
-      });
-    });
-  }
-
   private registrarReporte(batch: firebase.firestore.WriteBatch, fecha: Date) {
     const recibido = this.venta.recibido;
     const fechaMes = moment(fecha).startOf('month').toDate().getTime().toString();
@@ -337,44 +293,6 @@ export class PagoPage implements OnInit {
       }).catch(err => {
         this.presentAlertError(err, 'registrar');
       });
-    });
-  }
-
-  private registrarVenta() {
-    const fecha = new Date();
-    const pendiente = this.venta.estado === EstadoVenta.ENTREGADO;
-    const fechaVenta = pendiente ? this.venta.fecha.toDate() : fecha;
-    const recibido: number = this.venta.recibido;
-    const idfecha = moment(fechaVenta).startOf('day').toDate().getTime().toString();
-    const ventaDiaDoc = this.angularFirestore.doc<any>(`ventas/${idfecha}`);
-    const ventaDoc = ventaDiaDoc.collection('ventas').doc(this.venta.id.toString());
-    ventaDiaDoc.ref.get().then(diario => {
-      const batch = this.angularFirestore.firestore.batch();
-      if (diario.exists) {
-        const totalActual = diario.get('total');
-        const total = Number(totalActual) + recibido;
-        const cantidadActual = diario.get('cantidad');
-        const cantidad = Number(cantidadActual) + 1;
-        const pendienteActual = diario.get('pendiente');
-        const pendiente = this.venta.estado === EstadoVenta.ENTREGADO ? Number(pendienteActual) - 1 : pendienteActual;
-        batch.update(ventaDiaDoc.ref, {
-          total: total,
-          cantidad: cantidad,
-          fecha: fecha,
-          pendiente: pendiente
-        });
-      } else {
-        batch.set(ventaDiaDoc.ref, {
-          total: recibido,
-          cantidad: 1,
-          fecha: fecha,
-          id: idfecha
-        });
-      }
-      this.venta.fecha = fecha;
-      this.venta.estado = EstadoVenta.PAGADO;
-      batch.set(ventaDoc.ref, this.venta);
-      this.registrarReporte(batch, fecha);
     });
   }
 
