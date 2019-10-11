@@ -25,6 +25,7 @@ import { registerLocaleData } from '@angular/common';
 import { DetalleGrupoPageModule } from './detalle-grupo/detalle-grupo.module';
 import { DetalleReporteVentaPageModule } from './detalle-reporte-venta/detalle-reporte-venta.module';
 import { PagoPageModule } from './pago/pago.module';
+import { InventarioPageModule } from './inventario/inventario.module';
 
 registerLocaleData(localeEsCO);
 
@@ -44,6 +45,7 @@ registerLocaleData(localeEsCO);
     DetalleGrupoPageModule,
     DetalleProductoPageModule,
     DetalleReporteVentaPageModule,
+    InventarioPageModule,
     PagoPageModule,
     PipesModule
   ],

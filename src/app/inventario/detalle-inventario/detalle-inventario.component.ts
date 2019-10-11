@@ -1,18 +1,20 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl, FormBuilder, Validators } from '@angular/forms';
+import { InventarioOptions } from 'src/app/inventario-options';
 import { ProductoOptions } from 'src/app/producto-options';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { InventarioOptions } from 'src/app/inventario-options';
-import { ModalController } from '@ionic/angular';
-import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { FrontService } from 'src/app/front.service';
 import { InventarioService } from 'src/app/inventario.service';
+import { ModalController } from '@ionic/angular';
+import { DetalleOptions } from 'src/app/detalle-options';
+import { EstadoInventario } from '../../estado-inventario.enum';
 
 @Component({
-  selector: 'app-inventario',
-  templateUrl: './inventario.component.html',
-  styleUrls: ['./inventario.component.scss'],
+  selector: 'app-detalle-inventario',
+  templateUrl: './detalle-inventario.component.html',
+  styleUrls: ['./detalle-inventario.component.scss'],
 })
-export class InventarioComponent implements OnInit {
+export class DetalleInventarioComponent implements OnInit {
 
   public cantidad: FormControl;
   public idproducto: string;
@@ -44,13 +46,16 @@ export class InventarioComponent implements OnInit {
   public async guardar() {
     const loading = await this.frontService.presentLoading('Actualizando inventario...');
     const nuevo = Number(this.cantidad.value);
-    let servicio: Promise<any>;
+    const batch = this.angularFirestore.firestore.batch();
     if (this.idproducto === '01' || this.idproducto === '04') {
-      servicio = this.inventarioService.registroProductoPreparacion(this.producto, nuevo, this.sinPreparar, this.subProductos);
+      const estado = this.idproducto === '01' ? EstadoInventario.PREPARAR_ASADO : EstadoInventario.PREPARAR_BROSTEER;
+      this.producto.combos.forEach(combo => combo.activo = true);
+      const detalle: DetalleOptions = { cantidad: nuevo, producto: this.producto };
+      await this.inventarioService.actualizarInventario([detalle], batch, estado, 1, true);
     } else {
-      servicio = this.inventarioService.ingresoNuevos(this.producto, nuevo);
+      await this.inventarioService.ingresoNuevos(this.producto, nuevo, batch);
     }
-    servicio.then(() => {
+    batch.commit().then(() => {
       this.modalController.dismiss();
       this.frontService.presentToast('Se ha actualizado el inventario correctamente');
     }).catch(err => {
@@ -94,5 +99,6 @@ export class InventarioComponent implements OnInit {
       this.subProductos = productos.filter(producto => producto.id !== this.producto.id);
     });
   }
+
 
 }

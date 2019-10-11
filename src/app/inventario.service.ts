@@ -4,7 +4,6 @@ import { ProductoOptions } from './producto-options';
 import { InventarioOptions } from './inventario-options';
 import { EstadoInventario } from './estado-inventario.enum';
 import { UsuarioService } from './usuario.service';
-import { UsuarioOptions } from './usuario-options';
 import { DetalleOptions } from './detalle-options';
 import { GrupoOptions } from './grupo-options';
 import cloneDeep from 'lodash/cloneDeep';
@@ -16,7 +15,59 @@ export class InventarioService {
 
   constructor(private angularFirestore: AngularFirestore, private usuarioService: UsuarioService) { }
 
-  private actualizarInventarioProducto(productosGrupo: ProductoOptions[], producto: ProductoOptions, batch: firebase.firestore.WriteBatch, fecha: Date, id: string, actual: number, estado: string) {
+  public actualizarInventario(detalle: DetalleOptions[], batch: firebase.firestore.WriteBatch, estado: string, tipo: 1 | -1, preparacion?: boolean) {
+    return new Promise(async resolve => {
+      const productosDetalle = detalle.map(item => item.producto);
+      const grupos = productosDetalle.map(producto => producto.grupo);
+      const grupoProductos = await this.loadGrupoProductos(grupos);
+      const acutalGrupoProductos = [];
+      const fecha = new Date();
+      const idinventario = fecha.getTime().toString();
+
+      for (let grupo in grupoProductos) {
+        const productos = grupoProductos[grupo];
+        acutalGrupoProductos[grupo] = cloneDeep(productos);
+      }
+
+      if (preparacion) {
+        const producto: ProductoOptions = await this.loadProductos(null, '00');
+        const cantidad = detalle.map(item => item.cantidad ? Number(item.cantidad) : 0).reduce((a, b) => a + b);
+        this.reducir(batch, cantidad, estado, fecha, idinventario, producto);
+      }
+
+      detalle.forEach(item => {
+        const producto = item.producto;
+        const cantidad = Number(item.cantidad);
+        const combos = producto.combos && producto.combos[0] && producto.combos.find(productocombo => productocombo.activo);
+        if (combos) {
+          combos.productos.forEach(subproducto => {
+            const subproductoInventario = grupoProductos[subproducto.grupo.id]
+              .find((grupoProducto: ProductoOptions) => grupoProducto.id === subproducto.id);
+            const cantidadSubproducto = Number(subproducto.cantidad) * cantidad;
+            const cantidadSubproductoInventario = Number(subproductoInventario.cantidad);
+            subproductoInventario.cantidad = cantidadSubproductoInventario + cantidadSubproducto * tipo;
+          });
+        } else {
+          const productosIventario: ProductoOptions[] = grupoProductos[producto.grupo.id];
+          const productoInventario = productosIventario.find(productoInventario => productoInventario.id === producto.id);
+          productoInventario.cantidad = Number(productoInventario.cantidad) + cantidad * tipo;
+        }
+      });
+
+      for (let grupo in grupoProductos) {
+        const productosGrupo: ProductoOptions[] = grupoProductos[grupo];
+        productosGrupo.forEach((producto: ProductoOptions) => {
+          const productoDetalle = acutalGrupoProductos[grupo].find((item: ProductoOptions) => item.id === producto.id);
+          const actualProductoDetalle = Number(productoDetalle.cantidad);
+          this.actualizarInventarioProducto(grupoProductos[grupo], producto, batch, fecha, idinventario, actualProductoDetalle, estado, tipo);
+        });
+      }
+
+      resolve();
+    });
+  }
+
+  private actualizarInventarioProducto(productosGrupo: ProductoOptions[], producto: ProductoOptions, batch: firebase.firestore.WriteBatch, fecha: Date, id: string, actual: number, estado: string, tipo: 1 | -1) {
     const subproductos = productosGrupo.filter(item => !item.combos || !item.combos[0]);
     const subproductosGrupo: ProductoOptions[] = cloneDeep(subproductos);
     let cantidadCombos = 0;
@@ -38,13 +89,12 @@ export class InventarioService {
           cantidadCombo += Number(haycombo);
           cantidadCombos += Number(haycombo);
         }
+
+        const comboDocument = this.angularFirestore.doc(`combos/${combo.id}`);
+        batch.update(comboDocument.ref, { cantidad: cantidadCombo });
         combo.cantidad = cantidadCombo;
-        console.log(`Quedan ${cantidadCombo} de ${combo.nombre}`);
       });
       producto.cantidad = cantidadCombos;
-      console.log(`Total ${producto.nombre} ${cantidadCombos}`);
-    } else {
-      console.log(`Total ${producto.nombre} ${producto.cantidad}`);
     }
 
     const inventario: InventarioOptions = {
@@ -52,7 +102,7 @@ export class InventarioService {
       estado: estado,
       fecha: fecha,
       id: id,
-      ingreso: producto.cantidad - actual,
+      ingreso: producto.cantidad + actual * tipo,
       total: producto.cantidad,
       usuario: this.usuarioService.getUsuario()
     };
@@ -64,96 +114,62 @@ export class InventarioService {
       cantidad: producto.cantidad,
       estadoinventario: estado,
       fechainventario: fecha,
-      inventario: id
+      inventario: id,
     });
+    if (producto.combos) {
+      batch.update(productoDocument.ref, {
+        combos: producto.combos
+      });
+    }
   }
 
-  public actualizarInventario(detalle: DetalleOptions[], batch: firebase.firestore.WriteBatch, estado: string) {
+
+  public ingresoNuevos(producto: any, cantidad: number, batch: firebase.firestore.WriteBatch) {
     return new Promise(async resolve => {
-      const productosDetalle = detalle.map(item => item.producto);
-      const grupos = productosDetalle.map(producto => producto.grupo);
-      const grupoProductos = await this.loadGrupoProductos(grupos);
-      const acutalGrupoProductos = [];
-      for (let grupo in grupoProductos) {
-        const productos = grupoProductos[grupo];
-        acutalGrupoProductos[grupo] = cloneDeep(productos);
-      }
-
-      detalle.forEach(item => {
-        const producto = item.producto;
-        const cantidad = Number(item.cantidad);
-        const combos = producto.combos && producto.combos[0] && producto.combos.find(productocombo => productocombo.activo);
-        if (combos) {
-          combos.productos.forEach(subproducto => {
-            const subproductoInventario = grupoProductos[subproducto.grupo.id]
-              .find((grupoProducto: ProductoOptions) => grupoProducto.id === subproducto.id);
-            const cantidadSubproductoVenta = Number(subproducto.cantidad) * cantidad;
-            const cantidadSubproductoInventario = Number(subproductoInventario.cantidad);
-            subproductoInventario.cantidad = cantidadSubproductoInventario - cantidadSubproductoVenta;
-          });
-        } else {
-          const productosIventario: ProductoOptions[] = grupoProductos[producto.grupo.id];
-          const productoInventario = productosIventario.find(productoInventario => productoInventario.id === producto.id);
-          productoInventario.cantidad = Number(productoInventario.cantidad) - cantidad;
-        }
-      });
-
+      const productoActual: ProductoOptions = await this.loadProductos(null, producto.id);
+      const actual = Number(productoActual.cantidad | 0);
       const fecha = new Date();
-      const idinventario = this.angularFirestore.createId();
+      const id = fecha.getTime().toString();
+      const estado = EstadoInventario.INGRESAR_NUEVO;
+      const total = cantidad + actual;
+      const inventario: InventarioOptions = {
+        anterior: actual,
+        estado: estado,
+        fecha: fecha,
+        id: id,
+        ingreso: cantidad,
+        total: total,
+        usuario: this.usuarioService.getUsuario()
+      };
 
-      for (let grupo in grupoProductos) {
-        const productosGrupo: ProductoOptions[] = grupoProductos[grupo];
-        productosGrupo.forEach((producto: ProductoOptions) => {
-          const productoDetalle = acutalGrupoProductos[grupo].find((item: ProductoOptions) => item.id === producto.id);
-          const actualProductoDetalle = Number(productoDetalle.cantidad);
-          this.actualizarInventarioProducto(grupoProductos[grupo], producto, batch, fecha, idinventario, actualProductoDetalle, estado);
-        });
-      }
+      const productoDocument = this.angularFirestore.doc<ProductoOptions>(`productos/${producto.id}`);
+      const inventarioDocument = productoDocument.collection('inventario').doc(id);
+      batch.set(inventarioDocument.ref, inventario);
+      batch.update(productoDocument.ref, {
+        cantidad: total,
+        estadoinventario: estado,
+        fechainventario: fecha,
+        inventario: id
+      });
 
       resolve();
     });
   }
 
-  public ingresoNuevos(producto: ProductoOptions, cantidad: number, batch?: firebase.firestore.WriteBatch, estado?: string, id?: string, fecha?: Date, usuario?: UsuarioOptions) {
-    const actual = Number(producto.cantidad | 0);
-    const isBatch = batch;
-    batch = batch || this.angularFirestore.firestore.batch();
-    fecha = fecha || new Date();
-    estado = estado || EstadoInventario.INGRESAR_NUEVO;
-    id = id || this.angularFirestore.createId();
-    usuario = usuario || this.usuarioService.getUsuario();
-    const total = cantidad + actual;
-    const inventario: InventarioOptions = {
-      anterior: actual,
-      estado: estado,
-      fecha: fecha,
-      id: id,
-      ingreso: cantidad,
-      total: total,
-      usuario: usuario
-    };
-
-    const productoDocument = this.angularFirestore.doc<ProductoOptions>(`productos/${producto.id}`);
-    const inventarioDocument = productoDocument.collection('inventario').doc(id);
-    batch.set(inventarioDocument.ref, inventario);
-    batch.update(productoDocument.ref, {
-      cantidad: total,
-      estadoinventario: estado,
-      fechainventario: fecha,
-      inventario: id
-    });
-    if (!isBatch) {
-      return batch.commit();
-    }
-  }
-
-  private loadProductos(grupo: string) {
-    return new Promise<ProductoOptions[]>(resolve => {
-      const productoCollection = this.angularFirestore
-        .collection<ProductoOptions>('productos', ref => ref.where('grupo.id', '==', grupo));
-      productoCollection.valueChanges().subscribe(productos => {
-        resolve(productos);
-      });
+  private loadProductos(grupo?: string, id?: string) {
+    return new Promise<any>(resolve => {
+      if (grupo) {
+        const productoCollection = this.angularFirestore
+          .collection<ProductoOptions>('productos', ref => ref.where('grupo.id', '==', grupo));
+        productoCollection.valueChanges().subscribe(productos => {
+          resolve(productos);
+        });
+      } else {
+        const productoDocument = this.angularFirestore.doc<ProductoOptions>(`productos/${id}`);
+        productoDocument.valueChanges().subscribe(producto => {
+          resolve(producto);
+        });
+      }
     });
   }
 
@@ -169,20 +185,20 @@ export class InventarioService {
     });
   }
 
-  private reducir(actual: number, batch: firebase.firestore.WriteBatch, cantidad: number, estado: string, fecha: Date, id: string, usuario: UsuarioOptions, idProducto: string) {
-    const anterior = Number(actual | 0);
-    const total = anterior - cantidad;
+  private async reducir(batch: firebase.firestore.WriteBatch, cantidad: number, estado: string, fecha: Date, id: string, producto: ProductoOptions) {
+    const actual = Number(producto.cantidad);
+    const total = actual - cantidad;
     const inventario: InventarioOptions = {
-      anterior: anterior,
+      anterior: actual,
       estado: estado,
       fecha: fecha,
       id: id,
       ingreso: cantidad,
       total: total,
-      usuario: usuario
+      usuario: this.usuarioService.getUsuario()
     };
 
-    const productoDocument = this.angularFirestore.doc<ProductoOptions>(`productos/${idProducto}`);
+    const productoDocument = this.angularFirestore.doc<ProductoOptions>(`productos/${producto.id}`);
     const inventarioDocument = productoDocument.collection('inventario').doc(id);
     batch.set(inventarioDocument.ref, inventario);
     batch.update(productoDocument.ref, {
@@ -191,24 +207,6 @@ export class InventarioService {
       fechainventario: fecha,
       inventario: id
     });
-  }
-
-  public async registroProductoPreparacion(producto: ProductoOptions, cantidad: number, sinPreparar: ProductoOptions, subProductos: ProductoOptions[]) {
-    const usuario = this.usuarioService.getUsuario();
-    const inventarioSinPreparar = Number(sinPreparar.cantidad | 0);
-    const id = this.angularFirestore.createId();
-    const fecha = new Date();
-    const estado = producto.id === '01' ? EstadoInventario.PREPARAR_ASADO : EstadoInventario.PREPARAR_BROSTEER;
-    const batch = this.angularFirestore.firestore.batch();
-    this.reducir(inventarioSinPreparar, batch, cantidad, estado, fecha, id, usuario, sinPreparar.id);
-    this.ingresoNuevos(producto, cantidad, batch, estado, id, fecha, this.usuarioService.getUsuario());
-    subProductos.forEach(subproducto => {
-      const nombre = subproducto.nombre.toLowerCase();
-      const tipo = nombre.includes('cuarto') ? 4 : 2;
-      const cantidadsubproducto = tipo * cantidad;
-      this.ingresoNuevos(subproducto, cantidadsubproducto, batch, estado, id, fecha, usuario);
-    });
-    return batch.commit();
   }
 
 }

@@ -132,7 +132,7 @@ export class PagoPage implements OnInit {
       this.venta.fecha = fecha;
       this.venta.estado = EstadoVenta.PAGADO;
       batch.set(ventaDoc.ref, this.venta);
-      await this.inventarioService.actualizarInventario(this.venta.detalle, batch, EstadoInventario.VENTA_PRODUCTO);
+      await this.inventarioService.actualizarInventario(this.venta.detalle, batch, EstadoInventario.VENTA_PRODUCTO, -1);
       this.registrarReporte(batch, fecha);
     });
   }

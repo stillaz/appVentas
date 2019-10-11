@@ -64,7 +64,7 @@
         <ion-row>
           <ion-col>
             <ion-item *ngIf="reporte.mayor && reporte.mayor.producto">
-              <ion-text color="dark" class="center">
+              <ion-text color="medium" class="center">
                 <p>Más vendido</p>
                 <h2 style="color: #10dc60">{{ reporte.mayor.producto.nombre }}: {{reporte.mayor.cantidad}}</h2>
               </ion-text>
@@ -73,7 +73,7 @@
 
           <ion-col>
             <ion-item *ngIf="reporte.menor && reporte.menor.producto">
-              <ion-text color="dark" class="center">
+              <ion-text color="medium" class="center">
                 <p>Menos vendido</p>
                 <h2 style="color: #0cd1e8">{{ reporte.menor.producto.nombre }}: {{reporte.menor.cantidad}}</h2>
               </ion-text>
@@ -87,7 +87,7 @@
       <ion-avatar slot="start" *ngIf="detalle.producto.imagen">
         <img [src]="detalle.producto.imagen">
       </ion-avatar>
-      <ion-text color="medium"><strong class="black">{{detalle.producto.nombre}}</strong>
+      <ion-text>{{detalle.producto.nombre}}
       </ion-text>
       <ion-text color="danger" slot="end">
         <h2>{{detalle.cantidad}}</h2>

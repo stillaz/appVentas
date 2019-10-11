@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { InventarioComponent } from '../inventario/inventario.component';
+import { DetalleInventarioComponent } from 'src/app/inventario/detalle-inventario/detalle-inventario.component';
 
 @Component({
   selector: 'app-menu',
@@ -17,7 +17,7 @@ export class MenuComponent implements OnInit {
 
   public async inventario(producto: string) {
     const modal = await this.modalController.create({
-      component: InventarioComponent,
+      component: DetalleInventarioComponent,
       componentProps: {
         idproducto: producto
       }

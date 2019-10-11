@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, PopoverController, AlertController } from '@ionic/angular';
+import { ModalController, PopoverController, AlertController, ActionSheetController } from '@ionic/angular';
 import { ProductoOptions } from '../producto-options';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { DetalleProductoPage } from '../detalle-producto/detalle-producto.page';
@@ -39,7 +39,7 @@ export class ProductoPage implements OnInit {
   ];
 
   constructor(
-    private alertController: AlertController,
+    private actionSheetController: ActionSheetController,
     private angularFirestore: AngularFirestore,
     private compraService: CompraService,
     private fronService: FrontService,
@@ -84,33 +84,28 @@ export class ProductoPage implements OnInit {
 
   private async presentCombos(producto: ProductoOptions) {
     const combos = producto.combos;
-    const inputs: any[] = combos.map(combo => {
-      return {
-        label: combo.nombre,
-        type: 'radio',
-        value: combo.id,
-      }
-    });
 
-    const alert = await this.alertController.create({
-      header: 'Combos',
-      message: 'Selecciona un combo',
-      inputs: inputs,
-      buttons: [{
-        text: 'Continuar',
-        handler: data => {
-          if (data) {
-            const combo = producto.combos.find(combo => combo.id === data);
+    const buttons: any[] = combos.map(combo => {
+      return {
+        handler: () => {
+          if (combo.cantidad && Number(combo.cantidad) > 0) {
             combo.activo = true;
             this.compraService.agregar(producto);
           } else {
-            this.fronService.presentAlert('Seleccionar combo', 'Debes seleccionar un combo de la lista');
+            this.fronService.presentAlert('Error al ingresar producto', 'El producto seleccionado no tiene unidades disponible')
           }
-        }
-      }, 'Cancelar']
+        },
+        text: `${combo.nombre} (Disp. ${combo.cantidad})`
+      }
     });
 
-    alert.present();
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Combos',
+      subHeader: 'Selecciona uno de los combos',
+      buttons
+    });
+
+    actionSheet.present();
   }
 
   private updateGrupos() {

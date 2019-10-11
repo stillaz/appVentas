@@ -23,13 +23,17 @@
         </ion-avatar>
 
         <ion-text>{{combo.nombre}}</ion-text>
+        <ion-badge slot="end">{{combo.cantidad}}</ion-badge>
       </ion-item>
     </ion-list>
   </ion-list>
-
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button color="primary" (click)="ver()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button color="success" slot="end" (click)="ver()">
+      <ion-icon name="add" slot="start"></ion-icon>
+      Nuevo
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
