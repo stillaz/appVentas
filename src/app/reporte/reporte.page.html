@@ -23,8 +23,9 @@
   </ion-toolbar>
 
   <ion-toolbar [ngSwitch]="periocidad" class="center">
-    <ion-select *ngSwitchCase="'MENSUAL'" fill="clear" interface="action-sheet" [interfaceOptions]="customActionSheetOptions"
-      [(ngModel)]="mesSeleccionado" #C (ionChange)="seleccionarMes(C.value)">
+    <ion-select *ngSwitchCase="'MENSUAL'" fill="clear" interface="action-sheet"
+      [interfaceOptions]="customActionSheetOptions" [(ngModel)]="mesSeleccionado" #C
+      (ionChange)="seleccionarMes(C.value)">
       <ion-select-option *ngFor="let fecha of fechas" [value]="fecha">{{fecha.texto}}</ion-select-option>
     </ion-select>
 
@@ -85,11 +86,12 @@
       <ion-avatar item-start *ngIf="detalle.usuario.imagen">
         <img [src]="detalle.usuario.imagen">
       </ion-avatar>
-      <ion-text color="medium"><strong class="black">{{detalle.usuario.nombre}}</strong><br />
-        Ventas: {{detalle.cantidad}}
+      <ion-text color="primary" style="margin: 5px;">
+        <h2 no-margin style="font-size: 18px;">{{detalle.usuario.nombre}}</h2>
+        <ion-note>Ventas: {{detalle.cantidad}}</ion-note>
       </ion-text>
       <ion-text color="danger" slot="end">
-        <h2>{{detalle.total | currency:'COP':'symbol'}}</h2>
+        <h2 style="font-size: 18px; font-weight: bold;">{{detalle.total | currency:'COP':'symbol'}}</h2>
       </ion-text>
     </ion-item>
   </ion-list>

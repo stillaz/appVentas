@@ -5,13 +5,12 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ProductoPage } from './producto.page';
-import { MenuComponent } from './menu/menu.component';
+import { DetalleInventarioPage } from './detalle-inventario.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: ProductoPage
+    component: DetalleInventarioPage
   }
 ];
 
@@ -20,9 +19,8 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes),
+    RouterModule.forChild(routes)
   ],
-  declarations: [ProductoPage, MenuComponent],
-  entryComponents: [MenuComponent]
+  declarations: [DetalleInventarioPage]
 })
-export class ProductoPageModule { }
+export class DetalleInventarioPageModule {}

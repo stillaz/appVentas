@@ -42,7 +42,7 @@
     </ion-list-header>
 
     <ion-item-group *ngFor="let data of reporte.detalle">
-      <ion-item-divider color="medium">
+      <ion-item-divider color="medium" sticky>
         <ion-label>
           <strong>{{data.fecha}}</strong>
         </ion-label>
@@ -53,13 +53,13 @@
       </ion-item-divider>
 
       <ion-item *ngFor="let venta of data.ventas" (click)="ver(venta.id, venta.fecha.toDate())">
-        <ion-text slot="start">
-          <h4>Venta #{{venta.id}}</h4>
-          <p>{{venta.fecha.toDate() | date: 'shortTime'}}</p>
+        <ion-text color="primary">
+          <h4 no-margin style="font-size: 18px;">Venta #{{venta.id}}</h4>
+          <ion-note>{{venta.fecha.toDate() | date: 'shortTime'}}</ion-note>
         </ion-text>
 
         <ion-text color="danger" slot="end">
-          <h2>{{venta.recibido | currency:'COP':'symbol'}}</h2>
+          <h2 style="font-size: 16px; font-weight: bold;">{{venta.recibido | currency:'COP':'symbol'}}</h2>
         </ion-text>
       </ion-item>
     </ion-item-group>

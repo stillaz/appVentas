@@ -24,6 +24,7 @@ const routes: Routes = [
             path: 'pendiente',
             redirectTo: '/tabs/pendiente'
           }, { path: 'reporte-producto', loadChildren: '../reporte-producto/reporte-producto.module#ReporteProductoPageModule' },
+          { path: 'caja', loadChildren: '../caja/caja.module#CajaPageModule' },
           { path: '', loadChildren: '../venta/venta.module#VentaPageModule' }
         ]
       },

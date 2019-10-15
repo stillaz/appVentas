@@ -193,7 +193,7 @@ export class InventarioService {
       estado: estado,
       fecha: fecha,
       id: id,
-      ingreso: cantidad,
+      ingreso: -cantidad,
       total: total,
       usuario: this.usuarioService.getUsuario()
     };

@@ -110,7 +110,7 @@ export class DetalleReportePage implements OnInit {
     let fecha = fechaFin;
     while (fecha >= fechaInicio) {
       const texto = moment(fecha).locale('es').format('dddd, DD');
-      const promise = this.loadVentasDiaUsuario(fecha.getTime().toString()).then(ventas => {
+      await this.loadVentasDiaUsuario(fecha.getTime().toString()).then(ventas => {
         if (ventas[0]) {
           const totalDia = ventas.map(venta => venta.recibido).reduce((a, b) => a + b);
           this.reporte.cantidad += ventas.length;
@@ -118,7 +118,6 @@ export class DetalleReportePage implements OnInit {
           this.reporte.detalle.push({ fecha: texto, total: totalDia, ventas: ventas });
         }
       });
-      await promise;
       fecha = moment(fecha).add(-1, 'day').toDate();
     }
 

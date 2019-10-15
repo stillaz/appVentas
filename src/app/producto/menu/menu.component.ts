@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, NavController } from '@ionic/angular';
 import { DetalleInventarioComponent } from 'src/app/inventario/detalle-inventario/detalle-inventario.component';
 
 @Component({
@@ -11,6 +11,7 @@ export class MenuComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
+    private navController: NavController,
     private popoverController: PopoverController) { }
 
   ngOnInit() { }
@@ -24,6 +25,11 @@ export class MenuComponent implements OnInit {
     });
 
     await modal.present();
+    this.popoverController.dismiss();
+  }
+
+  public async reporte() {
+    this.navController.navigateForward('inventario');
     this.popoverController.dismiss();
   }
 }

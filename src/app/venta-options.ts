@@ -2,14 +2,16 @@ import { UsuarioOptions } from "./usuario-options";
 import { DetalleOptions } from './detalle-options';
 
 export interface VentaOptions {
-    id: number,
-    turno: number,
-    estado: string,
-    fecha: any,
+    caja: string,
     detalle: DetalleOptions[],
-    total: number,
-    pago: number,
     devuelta: number,
+    estado: string,
+    estadocaja: string,
+    fecha: any,
+    id: number,
+    pago: number,
     recibido: number,
+    total: number,
+    turno: number,
     usuario: UsuarioOptions
 }

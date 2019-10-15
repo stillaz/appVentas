@@ -12,7 +12,8 @@ const routes: Routes = [
   {
     path: '',
     component: InventarioPage
-  }
+  },
+  { path: 'detalle/:producto', loadChildren: '../detalle-inventario/detalle-inventario.module#DetalleInventarioPageModule' }
 ];
 
 @NgModule({

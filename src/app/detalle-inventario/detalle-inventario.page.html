@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-toolbar *ngIf="producto">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+
+    <ion-thumbnail slot="start" *ngIf="producto.imagen">
+      <img [src]="producto.imagen">
+    </ion-thumbnail>
+
+    <ion-title>Movimientos de {{producto.nombre}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="producto">
+    <ion-list-header>
+      <ion-grid style="width: 100%">
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-text color="medium" class="center">
+                <p>En inventario</p>
+                <h2 style="color: #32db64">{{ producto.cantidad }}</h2>
+              </ion-text>
+            </ion-item>
+          </ion-col>
+
+          <ion-col>
+            <ion-item>
+              <ion-text color="medium" class="center">
+                <p>Actualización</p>
+                <h2 style="color: #0cd1e8; font-size: 16px;">{{producto.estadoinventario}}</h2>
+              </ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-list-header>
+
+    <div *ngIf="inventario">
+      <ion-item-group *ngFor="let data of inventario">
+        <ion-item-divider color="medium" sticky>
+          <ion-label>
+            <strong>{{data.grupo | date: 'mediumDate'}}</strong>
+          </ion-label>
+
+          <ion-text style="margin-right: 10px;" slot="end">
+            <h3>{{data.total | currency:'COP':'symbol'}}</h3>
+          </ion-text>
+        </ion-item-divider>
+
+        <ion-item *ngFor="let item of data.items">
+          <ion-avatar *ngIf="item.usuario.imagen">
+            <img [src]="item.usuario.imagen">
+          </ion-avatar>
+
+          <ion-text color="primary">
+            <h4 no-margin style="font-size: 18px;">{{item.estado}}</h4>
+            <ion-note>{{item.usuario.nombre}} a las {{item.fecha.toDate() | date: 'shortTime'}}</ion-note>
+          </ion-text>
+
+          <ion-badge [color]="item.ingreso > 0 ? 'success' : 'danger'" slot="end">
+            {{item.ingreso}}
+          </ion-badge>
+        </ion-item>
+      </ion-item-group>
+    </div>
+  </ion-list>
+</ion-content>

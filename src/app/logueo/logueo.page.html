@@ -30,7 +30,11 @@
           <p>La contraseña no es válida</p>
         </ion-item>
 
-        <ion-button color="primary" expand="block" style="margin-top: 10px" (click)="logueo()" [disabled]="todo.invalid">INGRESAR</ion-button>
+        <ion-button color="primary" expand="block" style="margin-top: 10px" (click)="logueo()"
+          [disabled]="todo.invalid">
+          <ion-icon name="log-in" slot="start"></ion-icon>
+          INGRESAR
+        </ion-button>
 
         <!--<p>¿Olvidaste tu contraseña?
             <a>Entra aquí</a>

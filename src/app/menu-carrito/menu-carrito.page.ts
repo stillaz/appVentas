@@ -44,7 +44,7 @@ export class MenuCarritoPage implements OnInit {
   public async cancelar() {
     const alert = await this.alertController.create({
       header: 'Cancelar venta',
-      subHeader: `Desea cancelar la venta ${this.venta.id}`,
+      subHeader: `¿Desea cancelar la venta?`,
       buttons: [{
         text: 'Si',
         handler: () => {
