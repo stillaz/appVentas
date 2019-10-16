@@ -3,9 +3,9 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import moment from 'moment';
 import { EstadoCaja } from '../estado-caja.enum';
 import { AlertController, ModalController } from '@ionic/angular';
-import { FrontService } from '../front.service';
 import { CajaOptions } from '../caja-options';
 import { DetalleCajaComponent } from '../caja/detalle-caja/detalle-caja.component';
+import { CajaService } from '../caja.service';
 
 @Component({
   selector: 'app-tabs',
@@ -19,23 +19,13 @@ export class TabsPage {
   constructor(
     private alertController: AlertController,
     private angularFirestore: AngularFirestore,
+    private cajaService: CajaService,
     private modalController: ModalController
   ) { }
 
   ngOnInit() {
     this.updatePendientes();
-    this.updateCaja();
-  }
-
-  private loadCaja() {
-    const fecha = new Date();
-    const idfecha = moment(fecha).startOf('day').toDate().getTime();
-    const cajaCollection = this.angularFirestore.collection<CajaOptions>(`ventas`, ref => ref.orderBy('fecha', 'desc').limit(1));
-    return new Promise<CajaOptions>(resolve => {
-      cajaCollection.valueChanges().subscribe(caja => {
-        resolve(caja[0]);
-      });
-    });
+    this.loadCaja();
   }
 
   private async presentRegistroCaja(caja: string) {
@@ -65,18 +55,21 @@ export class TabsPage {
     alert.present();
   }
 
-  private updateCaja() {
-    const fecha = new Date();
-    const idfecha = moment(fecha).startOf('day').toDate().getTime();
-    const cajaCollection = this.angularFirestore.collection<CajaOptions>(`ventas/${idfecha}/caja`, ref => ref.orderBy('fecha', 'desc').limit(1));
-    cajaCollection.valueChanges().subscribe(caja => {
-      const ultimacaja = caja[0];
-      if (!ultimacaja) {
-        this.presentAlert('Sin caja', '¿Desea abrir caja?');
-      } else if (ultimacaja.estado === EstadoCaja.CERRADA) {
-        this.presentAlert('Inicio de caja', '¿Desea abrir caja?', ultimacaja);
-      } else {
-        this.presentAlert('Caja abierta', '¿Desea cerrar caja?', ultimacaja, `La caja de ${fecha} se encuentra abierta.`);
+  private loadCaja() {
+    const cajaCollection = this.angularFirestore.collection<CajaOptions>('cajas');
+    cajaCollection.valueChanges().subscribe(cajas => {
+      if (cajas.length === 1) {
+        const caja = cajas[0];
+        this.cajaService.caja = caja;
+        const estadocaja = caja.estado;
+        if (!estadocaja) {
+          this.presentAlert('Sin caja', '¿Desea abrir caja?');
+        } else if (estadocaja === EstadoCaja.CERRADA) {
+          this.presentAlert('Inicio de caja', '¿Desea abrir caja?', caja);
+        } else {
+          const idfecha = moment(caja.fecha.toDate()).locale('es').locale('LLLL');
+          this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, `La caja de ${idfecha} se encuentra abierta.`);
+        }
       }
     });
   }

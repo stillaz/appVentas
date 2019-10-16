@@ -36,6 +36,7 @@ export class CompraService {
 
   public nuevaVenta() {
     this.venta = {
+      caja: null,
       detalle: [] as any,
       devuelta: null,
       id: null,

@@ -18,9 +18,9 @@ export class LogueoPage implements OnInit {
   public todo: FormGroup;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private alertController: AlertController,
     private angularFireAuth: AngularFireAuth,
-    public alertController: AlertController
+    private formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
@@ -36,10 +36,10 @@ export class LogueoPage implements OnInit {
 
   async logueo() {
     this.login = this.todo.value;
-    let result = this.angularFireAuth.auth.signInWithEmailAndPassword(this.login.username, this.login.password);
-    result.catch(e => {
-      this.presentAlertError(e);
-    });
+    this.angularFireAuth.auth.signInWithEmailAndPassword(this.login.username, this.login.password)
+      .catch(e => {
+        this.presentAlertError(e);
+      });
   }
 
   async presentAlertError(err: any) {

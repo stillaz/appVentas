@@ -6,7 +6,6 @@ export interface VentaOptions {
     detalle: DetalleOptions[],
     devuelta: number,
     estado: string,
-    estadocaja: string,
     fecha: any,
     id: number,
     pago: number,
