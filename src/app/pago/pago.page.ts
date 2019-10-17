@@ -10,6 +10,9 @@ import printJS, { Configuration } from 'print-js';
 import { InventarioService } from '../inventario.service';
 import { EstadoInventario } from '../estado-inventario.enum';
 import { UsuarioService } from '../usuario.service';
+import { CajaService } from '../caja.service';
+import { CajaOptions } from '../caja-options';
+import { EstadoMovimiento } from '../estado-movimiento.enum';
 
 @Component({
   selector: 'app-pago',
@@ -28,6 +31,7 @@ export class PagoPage implements OnInit {
   constructor(
     private alertController: AlertController,
     private angularFirestore: AngularFirestore,
+    private cajaService: CajaService,
     private inventarioService: InventarioService,
     private modalController: ModalController,
     private navController: NavController,
@@ -287,6 +291,44 @@ export class PagoPage implements OnInit {
           usuario: usuario
         });
       }
+
+      const caja = this.cajaService.caja;
+
+      const cajaDocument = this.angularFirestore.doc(`cajas/${caja.id}`);
+
+      batch.update(cajaDocument.ref, {
+        actualizacion: fecha,
+        movimientos: Number(caja.movimientos) + 1,
+        total: Number(caja.total) + recibido,
+        usuario: usuario
+      });
+
+      const movimiento = this.cajaService.movimiento;
+      const totalMovimiento = Number(movimiento.total);
+      const movimientoDocument = cajaDocument.collection('movimientos').doc(movimiento.id);
+      batch.update(movimientoDocument.ref, {
+        actualizacion: fecha,
+        movimientos: Number(movimiento.movimientos) + 1,
+        total: totalMovimiento + recibido,
+        usuario: usuario
+      });
+
+      const idfecha = fecha.getTime().toString();
+
+      const movimientos: CajaOptions = {
+        actualizacion: fecha,
+        estado: EstadoMovimiento.VENTA,
+        fecha: fecha,
+        id: idfecha,
+        ingreso: recibido,
+        movimientos: 1,
+        total: totalMovimiento + recibido,
+        usuario: usuario,
+        venta: this.venta
+      }
+
+      const movimientosDocument = movimientoDocument.collection('movimientos').doc(idfecha);
+      batch.set(movimientosDocument.ref, movimientos);
 
       batch.commit().then(() => {
         this.presentAlertFinalizar();

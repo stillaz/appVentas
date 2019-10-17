@@ -1,9 +1,46 @@
-<ion-header>
+<ion-header *ngIf="movimiento">
   <ion-toolbar>
-    <ion-title>caja</ion-title>
+    <ion-back-button slot="start"></ion-back-button>
+    <ion-avatar slot="start" *ngIf="movimiento.usuario.imagen">
+      <img [src]="movimiento.usuario.imagen">
+    </ion-avatar>
+    <ion-note>{{movimiento.usuario.nombre}}</ion-note>
+    <ion-title>Caja {{movimiento.id}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="menu($event)">
+        <ion-icon name="more"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-item lines="none" no-padding>
+      <ion-text>Fecha</ion-text>
+      <ion-text color="primary">{{movimiento.fecha.toDate() | date: 'medium'}}</ion-text>
+      <ion-text>, Movimientos</ion-text>
+      <ion-text color="primary">{{movimiento.movimientos}}</ion-text>
+      <ion-text>, Abre caja con</ion-text>
+      <ion-text color="primary">{{movimiento.ingreso | currency:'COP':'symbol'}}</ion-text>
+      <ion-text>, Cierra con</ion-text>
+      <ion-text color="primary">{{movimiento.total | currency:'COP':'symbol'}}</ion-text>
+    </ion-item>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-list>
+    <ion-item *ngFor="let item of movimientos">
+      <ion-icon color="success" name="arrow-up" size="small" slot="start" *ngIf="item.ingreso > 0"></ion-icon>
+      <ion-icon color="danger" name="arrow-down" size="small" slot="start" *ngIf="item.ingreso <= 0"></ion-icon>
 
+      <ion-text color="primary" style="margin: 5px;">
+        <h2 no-margin style="font-size: 18px;">{{item.fecha.toDate() | date: 'medium'}}</h2>
+        <ion-note>{{item.estado}} {{item.fecha.toDate() | fecha}}</ion-note>
+      </ion-text>
+
+      <ion-text [color]="item.ingreso > 0 ? 'success' : 'danger'" slot="end">
+        <h2 style="font-size: 18px; font-weight: bold;">{{item.ingreso | currency:'COP':'symbol'}}</h2>
+      </ion-text>
+    </ion-item>
+  </ion-list>
 </ion-content>

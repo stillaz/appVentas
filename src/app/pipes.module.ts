@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { UdpCurrencyPipe } from './udp-currency.pipe';
+import { FechaPipe } from './fecha.pipe';
 
 @NgModule({
-	declarations: [UdpCurrencyPipe],
+	declarations: [UdpCurrencyPipe, FechaPipe],
 	imports: [],
-	exports: [UdpCurrencyPipe]
+	exports: [UdpCurrencyPipe, FechaPipe]
 })
 export class PipesModule { }

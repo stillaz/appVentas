@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
 import { CajaPage } from './caja.page';
 import { DetalleCajaComponent } from './detalle-caja/detalle-caja.component';
+import { PipesModule } from '../pipes.module';
+import { MenuCajaComponent } from './menu-caja/menu-caja.component';
 
 const routes: Routes = [
   {
@@ -20,9 +22,12 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    PipesModule,
+    ReactiveFormsModule
   ],
-  declarations: [CajaPage, DetalleCajaComponent],
+  declarations: [CajaPage, DetalleCajaComponent, MenuCajaComponent],
+  entryComponents: [MenuCajaComponent],
   exports: [DetalleCajaComponent]
 })
 export class CajaPageModule { }
