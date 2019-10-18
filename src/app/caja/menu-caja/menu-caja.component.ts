@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { DetalleCajaComponent } from '../detalle-caja/detalle-caja.component';
+import { CajaService } from 'src/app/caja.service';
+import { CajaOptions } from 'src/app/caja-options';
 
 @Component({
   selector: 'app-menu-caja',
@@ -9,20 +11,24 @@ import { DetalleCajaComponent } from '../detalle-caja/detalle-caja.component';
 })
 export class MenuCajaComponent implements OnInit {
 
+  public movimiento: CajaOptions;
+
   constructor(
     private modalController: ModalController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private cajaService: CajaService
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.movimiento = this.cajaService.movimiento;
+  }
 
-  public async cerrar(caja: string) {
+  public async ejecutar(opcion: string) {
     this.popoverController.dismiss();
     const modal = await this.modalController.create({
       component: DetalleCajaComponent,
       componentProps: {
-        caja,
-        opcion: 'Cierre'
+        opcion
       }
     });
 

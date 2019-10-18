@@ -38,10 +38,12 @@ export class CajaPage implements OnInit {
   }
 
   private updateMovimientos() {
-    const movimientoCollection = this.angularFirestore.collection<CajaOptions>(`cajas/${this.caja.id}/movimientos/${this.movimiento.id}/movimientos`, ref => ref.orderBy('fecha', 'asc'));
-    movimientoCollection.valueChanges().subscribe(movimientos => {
-      this.movimientos = movimientos;
-    });
+    if (this.movimiento) {
+      const movimientoCollection = this.angularFirestore.collection<CajaOptions>(`cajas/${this.caja.id}/movimientos/${this.movimiento.id}/movimientos`, ref => ref.orderBy('fecha', 'asc'));
+      movimientoCollection.valueChanges().subscribe(movimientos => {
+        this.movimientos = movimientos;
+      });
+    }
   }
 
 }

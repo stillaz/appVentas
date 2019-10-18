@@ -21,10 +21,12 @@ export class CajaService {
   }
 
   private updateMovimientoCaja() {
-    const idfechamovimiento = this.caja.fecha.toDate().getTime();
-    const movimientoCajaDocument = this.angularFirestore.doc<CajaOptions>(`cajas/${this.caja.id}/movimientos/${idfechamovimiento}`);
-    movimientoCajaDocument.valueChanges().subscribe(movimiento => {
-      this.movimiento = movimiento;
-    });
+    if (this.caja.fecha) {
+      const idfechamovimiento = this.caja.fecha.toDate().getTime();
+      const movimientoCajaDocument = this.angularFirestore.doc<CajaOptions>(`cajas/${this.caja.id}/movimientos/${idfechamovimiento}`);
+      movimientoCajaDocument.valueChanges().subscribe(movimiento => {
+        this.movimiento = movimiento;
+      });
+    }
   }
 }

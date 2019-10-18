@@ -1,5 +1,15 @@
 <ion-list>
-  <ion-item (click)="cerrar()">
+  <ion-item (click)="ejecutar('Cierre')"
+    *ngIf="movimiento && movimiento.estado !== 'Cierre' && movimiento.estado !== 'Descuadre'">
     Cerrar caja
+  </ion-item>
+
+  <ion-item (click)="ejecutar('Apertura')"
+    *ngIf="movimiento && (movimiento.estado === 'Cierre' || movimiento.estado === 'Descuadre')">
+    Abrir caja
+  </ion-item>
+
+  <ion-item (click)="ejecutar('Inicio')" *ngIf="!movimiento">
+    Abrir caja
   </ion-item>
 </ion-list>

@@ -28,18 +28,19 @@ export class TabsPage {
     this.validateCaja();
   }
 
-  private async presentRegistroCaja(caja: string) {
+  private async presentRegistroCaja(caja: string, opcion: string) {
     const modal = await this.modalController.create({
       component: DetalleCajaComponent,
       componentProps: {
-        caja: caja
+        caja,
+        opcion
       }
     });
 
     modal.present();
   }
 
-  private async presentAlert(titulo: string, mensaje: string, caja: CajaOptions, subtitulo?: string) {
+  private async presentAlert(titulo: string, mensaje: string, caja: CajaOptions, opcion: string, subtitulo?: string) {
     const alert = await this.alertController.create({
       header: titulo,
       subHeader: subtitulo,
@@ -47,7 +48,7 @@ export class TabsPage {
       buttons: [{
         text: 'Si',
         handler: () => {
-          this.presentRegistroCaja(caja && caja.id);
+          this.presentRegistroCaja(caja && caja.id, opcion);
         }
       }, 'No']
     });
@@ -78,12 +79,12 @@ export class TabsPage {
       this.cajaService.updateCaja(caja.id);
       const estadocaja = caja.estado;
       if (!estadocaja) {
-        this.presentAlert('Sin caja', '¿Desea abrir caja?', caja);
-      } else if (estadocaja === EstadoCaja.CERRADA) {
-        this.presentAlert('Inicio de caja', '¿Desea abrir caja?', caja);
+        this.presentAlert('Sin caja', '¿Desea abrir caja?', caja, 'Inicio');
+      } else if (estadocaja === EstadoCaja.CERRADA || estadocaja === EstadoCaja.DESCUADRE) {
+        this.presentAlert('Inicio de caja', '¿Desea abrir caja?', caja, 'Apertura');
       } else {
         const idfecha = moment(caja.fecha.toDate()).locale('es').format('LLLL');
-        this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, `La caja de ${idfecha} se encuentra abierta.`);
+        this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`);
       }
     }
   }

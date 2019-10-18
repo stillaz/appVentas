@@ -60,4 +60,25 @@ export class GrupoService {
       return gruposItems;
     }
   }
+
+  public agruparCampo(items: any[], campo: string) {
+    if (!items || items.some(item => !item[campo])) {
+      return null;
+    } else {
+      const grupos = [];
+      const gruposItems = [];
+      items.forEach(item => {
+        const grupo = item[campo];
+        if (grupos[grupo] === undefined) {
+          grupos[grupo] = [];
+        }
+        grupos[grupo].push(item);
+      });
+      for (let grupo in grupos) {
+        gruposItems.push({ grupo: grupo, items: grupos[grupo] });
+      }
+
+      return gruposItems;
+    }
+  }
 }
