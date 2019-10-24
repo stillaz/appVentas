@@ -13,7 +13,7 @@ import { Platform } from '@ionic/angular';
 export class DetalleUsuarioPage implements OnInit {
 
   private id: string;
-  private usuario: UsuarioOptions;
+  public usuario: UsuarioOptions;
   public todo: FormGroup;
   public mobile: boolean;
 

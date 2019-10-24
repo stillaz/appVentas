@@ -1,11 +1,16 @@
-<ion-header *ngIf="movimiento">
+<ion-header>
   <ion-toolbar>
     <ion-back-button slot="start"></ion-back-button>
-    <ion-avatar slot="start" *ngIf="movimiento.usuario.imagen">
+    <ion-avatar slot="start" *ngIf="mmovimiento && movimiento.usuario.imagen">
       <img [src]="movimiento.usuario.imagen">
     </ion-avatar>
-    <ion-note>{{movimiento.usuario.nombre}}</ion-note>
-    <ion-title>Caja {{movimiento.id}}</ion-title>
+    <ion-title>
+      Caja {{movimiento && movimiento.id}}
+      <ion-note [color]="caja.estado === 'Abierta' ? 'warning' : 'success'" *ngIf="caja">
+        Caja {{caja.estado || 'Sin iniciar'}}
+      </ion-note>
+    </ion-title>
+    <ion-note *ngIf="movimiento">{{movimiento.usuario.nombre}}</ion-note>
     <ion-buttons slot="end">
       <ion-button (click)="menu($event)">
         <ion-icon name="more"></ion-icon>
@@ -13,16 +18,16 @@
     </ion-buttons>
   </ion-toolbar>
 
-  <ion-toolbar>
+  <ion-toolbar *ngIf="movimiento">
     <ion-item lines="none" no-padding>
-      <ion-text>Fecha</ion-text>
-      <ion-text color="primary">{{movimiento.fecha.toDate() | date: 'medium'}}</ion-text>
-      <ion-text>, Movimientos</ion-text>
-      <ion-text color="primary">{{movimiento.movimientos}}</ion-text>
-      <ion-text>, Abre caja con</ion-text>
-      <ion-text color="primary">{{movimiento.ingreso | currency:'COP':'symbol'}}</ion-text>
-      <ion-text>, Cierra con</ion-text>
-      <ion-text color="primary">{{movimiento.total | currency:'COP':'symbol'}}</ion-text>
+      <ion-text>Fecha <ion-text color="primary">{{movimiento.fecha.toDate() | date: 'medium'}}</ion-text>
+      </ion-text>
+      <ion-text>, Movimientos <ion-text color="primary">{{movimiento.movimientos}}</ion-text>
+      </ion-text>
+      <ion-text>, Abre con <ion-text color="primary">{{movimiento.ingreso | currency:'COP':'symbol'}}</ion-text>
+      </ion-text>
+      <ion-text>, Cierra con <ion-text color="primary">{{movimiento.total | currency:'COP':'symbol'}}</ion-text>
+      </ion-text>
     </ion-item>
   </ion-toolbar>
 </ion-header>

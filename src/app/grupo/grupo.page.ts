@@ -29,7 +29,7 @@ export class GrupoPage implements OnInit {
     });
   }
 
-  public ver(idgrupo: string) {
+  public ver(idgrupo?: string) {
     this.presentGrupoModal(idgrupo);
   }
 

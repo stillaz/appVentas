@@ -42,7 +42,7 @@ export class ComboPage implements OnInit {
     });
   }
 
-  public ver(combo: string) {
+  public ver(combo?: string) {
     this.presentGrupoModal(combo);
   }
 

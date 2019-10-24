@@ -5,7 +5,7 @@
       <ion-icon name="cart"></ion-icon>
       <ion-badge color="danger" *ngIf="cantidad">{{cantidad}}</ion-badge>
     </ion-menu-button>
-    <ion-buttons slot="end">
+    <ion-buttons slot="end" *ngIf="!ventas">
       <ion-button (click)="menu($event)">
         <ion-icon name="more"></ion-icon>
       </ion-button>

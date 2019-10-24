@@ -22,7 +22,7 @@ export class VentaPage implements OnInit {
 
   public ir(pagina: string) {
     const caja = this.cajaService.caja;
-    if (pagina === 'ventas' && (!caja || caja.estado !== EstadoCaja.ABIERTA)) {
+    if (pagina === 'detalle' && (!caja || caja.estado !== EstadoCaja.ABIERTA)) {
       this.frontService.presentAlert('Caja sin abrir', 'La caja no se encuentra abierta', 'Debes abrir la caja antes de registrar ventas.')
     } else {
       this.navController.navigateForward(`/tabs/venta/${pagina}`);

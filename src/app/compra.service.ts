@@ -3,6 +3,7 @@ import { EstadoVenta } from './estado-venta.enum';
 import { ProductoOptions } from './producto-options';
 import { VentaOptions } from './venta-options';
 import { Subject } from 'rxjs';
+import cloneDeep from 'lodash/cloneDeep';
 
 @Injectable({
   providedIn: 'root'
@@ -18,12 +19,20 @@ export class CompraService {
 
   public agregar(producto: ProductoOptions) {
     const detalleFactura = this.venta.detalle;
-    const item = detalleFactura.find((item: any) => item.producto.id === producto.id);
+    const item = detalleFactura.find((item: any) => {
+      const productoItem = item.producto;
+      let productoEncontrado = productoItem.id === producto.id;
+      if (producto.combos && producto.combos[0]) {
+        const comboEncontrado = producto.combos.find(combo => combo.activo);
+        return productoEncontrado && productoItem.combos.some((combo: any) => combo.id === comboEncontrado.id && combo.activo);
+      }
+      return productoEncontrado;
+    });
     if (item) {
       item.cantidad++;
       item.subtotal = item.cantidad * item.producto.precio;
     } else {
-      detalleFactura.push({ producto: producto, cantidad: 1, subtotal: producto.precio });
+      detalleFactura.push({ producto: cloneDeep(producto), cantidad: 1, subtotal: producto.precio });
     }
 
     this.venta.total = detalleFactura.map((item: any) => item.subtotal).reduce((a: number, b: number) => a + b);
