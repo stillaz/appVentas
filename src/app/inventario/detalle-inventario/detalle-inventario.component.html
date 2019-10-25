@@ -11,8 +11,22 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="producto">
-  <ion-card>
+<ion-content>
+  <ion-card *ngIf="!producto">
+    <ion-item>
+      <ion-label position="stacked">
+        Ingrese el cógido del producto
+      </ion-label>
+
+      <ion-input [(ngModel)]="idproducto"></ion-input>
+
+      <ion-button slot="end" (click)="updateProducto()">
+        <ion-icon name="search"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-card>
+
+  <ion-card *ngIf="producto">
     <ion-card-header no-padding>
       <ion-item lines="none">
         <ion-thumbnail slot="start" *ngIf="producto.imagen">

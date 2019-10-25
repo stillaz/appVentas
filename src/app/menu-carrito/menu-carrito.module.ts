@@ -6,6 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { MenuCarritoPage } from './menu-carrito.page';
+import { ComboActivoPipe } from '../combo-activo.pipe';
 
 const routes: Routes = [
   {
@@ -25,6 +26,6 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [MenuCarritoPage]
+  declarations: [MenuCarritoPage, ComboActivoPipe]
 })
 export class MenuCarritoPageModule { }

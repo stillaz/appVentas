@@ -144,6 +144,7 @@ export class DetalleProductoPage implements OnInit {
         this.loading.dismiss();
       });
     } else {
+      producto.cantidad = 0;
       this.productoDoc.set(producto).then(() => {
         this.presentToast('El producto ha sido registrado');
         this.loading.dismiss();

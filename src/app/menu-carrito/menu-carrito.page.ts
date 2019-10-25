@@ -48,7 +48,7 @@ export class MenuCarritoPage implements OnInit {
       buttons: [{
         text: 'Si',
         handler: () => {
-          this.navController.navigateBack('/tabs/venta');
+          this.navController.navigateBack('home');
         }
       }, {
         text: 'No',
@@ -126,6 +126,7 @@ export class MenuCarritoPage implements OnInit {
       buttons: [{
         text: 'Continuar',
         handler: () => {
+          this.navController.navigateBack('home');
           this.presentToast('Se ha registrado la venta');
         }
       }]
@@ -139,8 +140,6 @@ export class MenuCarritoPage implements OnInit {
       duration: 3000
     });
     toast.present();
-
-    this.navController.back();
   }
 
   public async quitar(idproducto: string, nombre: string, cantidad: number) {

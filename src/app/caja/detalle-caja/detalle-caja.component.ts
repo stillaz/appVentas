@@ -11,6 +11,7 @@ import { ModalController, AlertController } from '@ionic/angular';
 import { CajaService } from 'src/app/caja.service';
 import { GrupoService } from 'src/app/grupo.service';
 import cloneDeep from 'lodash/cloneDeep';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-detalle-caja',
@@ -27,6 +28,7 @@ export class DetalleCajaComponent implements OnInit {
 
   constructor(
     private alertController: AlertController,
+    private angularFireAuth: AngularFireAuth,
     private angularFirestore: AngularFirestore,
     private cajaService: CajaService,
     private frontService: FrontService,
@@ -112,7 +114,11 @@ export class DetalleCajaComponent implements OnInit {
     batch.commit().then(() => {
       loading.dismiss();
       this.modalController.dismiss();
-      this.frontService.presentToast('Se ha realizado la apertura de la caja');
+      if (this.opcion === 'Cierre') {
+        this.angularFireAuth.auth.signOut();
+      } else {
+        this.frontService.presentToast('Se ha realizado la apertura de la caja');
+      }
     }).catch(err => {
       loading.dismiss();
       this.frontService.presentAlert('Ha ocurrido un error', `Error: ${err}`, 'Se presentó al abrir caja.')

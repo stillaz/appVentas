@@ -1,0 +1,48 @@
+.button-rounded {
+    display: inline-block;
+    position: relative;
+    width: 175px;
+    height: 175px;
+    line-height: 175px;
+    text-align: center;
+    border-radius: 10px !important;
+  
+    ion-icon {
+      color: #fff;
+      height: 60px;
+      width: 60px;
+    }
+  
+    ion-text {
+      left: 0;
+      position: absolute;
+      text-align: center;
+      top: 22px;
+      width: 100%;
+      z-index: 1;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+    }
+  }
+  .button-rounded:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 175px;
+    height: 175px;
+  }
+  .button-rounded:hover {
+    background-color: rgba($color: #fafafa, $alpha: 0.4) !important;
+  }
+  
+  .button-rounded-background {
+    display: inline-block;
+    position: relative;
+    width: 175px;
+    height: 175px;
+  
+    line-height: 175px;
+    border-radius: 10px !important;
+  }

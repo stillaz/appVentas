@@ -233,7 +233,7 @@ export class PagoPage implements OnInit {
     });
     toast.present();
 
-    this.navController.navigateBack('/tabs/venta');
+    this.navController.navigateBack('');
   }
 
   private imprimir() {

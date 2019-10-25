@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { UdpCurrencyPipe } from './udp-currency.pipe';
 import { FechaPipe } from './fecha.pipe';
+import { ComboActivoPipe } from './combo-activo.pipe';
 
 @NgModule({
 	declarations: [UdpCurrencyPipe, FechaPipe],
 	imports: [],
-	exports: [UdpCurrencyPipe, FechaPipe]
+	exports: [ UdpCurrencyPipe, FechaPipe]
 })
 export class PipesModule { }

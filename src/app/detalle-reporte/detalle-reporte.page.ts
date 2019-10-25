@@ -51,7 +51,7 @@ export class DetalleReportePage implements OnInit {
     this.idusuario = this.activeRouter.snapshot.paramMap.get('idusuario');
     this.fecha = new Date(Number(this.activeRouter.snapshot.paramMap.get('fecha')));
     if (!this.idusuario || !this.fecha) {
-      this.navController.navigateRoot('tabs/ventas');
+      this.navController.navigateRoot('ventas');
     }
     this.initReporte();
     this.updateUsuario();

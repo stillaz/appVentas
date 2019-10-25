@@ -53,7 +53,7 @@ export class ReportePage implements OnInit {
   }
 
   public ver(idusuario: string) {
-    this.navController.navigateForward(['tabs/venta/reporte/detalle', {
+    this.navController.navigateForward(['venta/reporte/detalle', {
       idusuario: idusuario,
       fecha: this.fecha.getTime().toString()
     }]);

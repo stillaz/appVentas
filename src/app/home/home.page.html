@@ -1,0 +1,93 @@
+<app-menu-home></app-menu-home>
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button color="primary"></ion-menu-button>
+    </ion-buttons>
+    <ion-title color="primary">DIS Restaurante</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid style="height: 100%; width: 100%;">
+    <ion-row align-items-center justify-content-center style="height: 100%;">
+      <ion-col size="3">
+        <div class="button-rounded-background" style="background-color: #155ee6;" (click)="ir('venta/detalle')">
+          <div class="button-rounded">
+            <ion-icon name="cart"></ion-icon>
+            <ion-text>
+              Nueva venta
+            </ion-text>
+          </div>
+        </div>
+      </ion-col>
+
+      <ion-col size="3">
+        <div class="button-rounded-background" style="background-color: #868686;" (click)="ir('caja')">
+          <div class="button-rounded">
+            <ion-icon name="cash"></ion-icon>
+            <ion-text>
+              Caja
+            </ion-text>
+          </div>
+        </div>
+      </ion-col>
+
+      <ion-col size="3">
+        <div class="button-rounded-background" style="background-color: #a2d80d;" (click)="ir('inventario')">
+          <div class="button-rounded">
+            <ion-icon name="filing"></ion-icon>
+            <ion-text>
+              Inventario
+            </ion-text>
+          </div>
+        </div>
+      </ion-col>
+
+      <ion-col size="3">
+        <div class="button-rounded-background" style="background-color: #0dc0d8;" (click)="ir('producto')">
+          <div class="button-rounded">
+            <ion-icon name="pizza"></ion-icon>
+            <ion-text>
+              Productos
+            </ion-text>
+          </div>
+        </div>
+      </ion-col>
+
+      <ion-col size="3">
+        <div class="button-rounded-background" style="background-color: #07ca38;" (click)="ir('venta/reporte')">
+          <div class="button-rounded">
+            <ion-icon name="stats"></ion-icon>
+            <ion-text>
+              Registro de ventas
+            </ion-text>
+          </div>
+        </div>
+      </ion-col>
+
+      <ion-col size="3">
+        <div class="button-rounded-background" style="background-color: #e6a120;" (click)="ir('producto/reporte')">
+          <div class="button-rounded">
+            <ion-icon name="podium"></ion-icon>
+            <ion-text>
+              Productos vendidos
+            </ion-text>
+          </div>
+        </div>
+      </ion-col>
+
+      <ion-col size="3">
+        <div class="button-rounded-background" style="background-color: #e62020;" (click)="salir()">
+          <div class="button-rounded">
+            <ion-icon name="exit"></ion-icon>
+            <ion-text>
+              Salir
+            </ion-text>
+          </div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

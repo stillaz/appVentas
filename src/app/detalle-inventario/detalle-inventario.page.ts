@@ -31,7 +31,7 @@ export class DetalleInventarioPage implements OnInit {
     productoDocument.valueChanges().subscribe(producto => {
       this.producto = producto;
 
-      const inventarioCollection = productoDocument.collection<InventarioOptions>('inventario');
+      const inventarioCollection = productoDocument.collection<InventarioOptions>('inventario', ref => ref.orderBy('fecha', 'desc'));
       inventarioCollection.valueChanges().subscribe(inventario => {
         this.inventario = this.grupoService.agruparFecha(inventario);
       });

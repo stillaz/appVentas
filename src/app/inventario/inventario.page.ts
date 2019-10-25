@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import moment from 'moment';
-import { NavController } from '@ionic/angular';
+import { NavController, PopoverController } from '@ionic/angular';
+import { MenuComponent } from './menu/menu.component';
 
 @Component({
   selector: 'app-inventario',
@@ -14,11 +15,21 @@ export class InventarioPage implements OnInit {
 
   constructor(
     private angularFirestore: AngularFirestore,
-    private navController: NavController
+    private navController: NavController,
+    private popoverController: PopoverController
   ) { }
 
   ngOnInit() {
     this.updateInventario();
+  }
+
+  public async menu(ev: any) {
+    const popover = await this.popoverController.create({
+      component: MenuComponent,
+      event: ev,
+      translucent: true
+    });
+    return await popover.present();
   }
 
   private updateInventario() {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, PopoverController, AlertController, ActionSheetController } from '@ionic/angular';
+import { ModalController, ActionSheetController } from '@ionic/angular';
 import { ProductoOptions } from '../producto-options';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { DetalleProductoPage } from '../detalle-producto/detalle-producto.page';
@@ -7,7 +7,6 @@ import { GrupoOptions } from '../grupo-options';
 import { Router } from '@angular/router';
 import { CompraService } from '../compra.service';
 import { VentaOptions } from '../venta-options';
-import { MenuComponent } from './menu/menu.component';
 import { GrupoService } from '../grupo.service';
 import { FrontService } from '../front.service';
 
@@ -45,7 +44,6 @@ export class ProductoPage implements OnInit {
     private fronService: FrontService,
     private grupoService: GrupoService,
     private modalController: ModalController,
-    private popoverController: PopoverController,
     private router: Router
   ) { }
 
@@ -53,7 +51,7 @@ export class ProductoPage implements OnInit {
     this.gruposeleccion = 'Todos los grupos';
     this.marcaseleccion = 'Todas las marcas';
     this.updateGrupos();
-    this.ventas = this.router.url.startsWith('/tabs/venta/');
+    this.ventas = this.router.url.startsWith('/venta/');
     this.carrito = this.compraService.venta;
     this.compraService.getCantidad().subscribe(cantidad => {
       this.cantidad = cantidad;
@@ -71,15 +69,6 @@ export class ProductoPage implements OnInit {
       producto.combos.forEach(combo => combo.activo = false);
       await this.presentCombos(producto);
     }
-  }
-
-  public async menu(ev: any) {
-    const popover = await this.popoverController.create({
-      component: MenuComponent,
-      event: ev,
-      translucent: true
-    });
-    return await popover.present();
   }
 
   private async presentCombos(producto: ProductoOptions) {

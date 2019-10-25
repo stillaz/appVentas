@@ -40,7 +40,7 @@ export class AppComponent {
         usuarioDoc.valueChanges().subscribe(data => {
           if (data) {
             this.usuarioService.setUsuario(data);
-            this.navController.navigateRoot('tabs/venta');
+            this.navController.navigateRoot('home');
           } else {
             alert('Usuario no encontrado');
           }

@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { InventarioPage } from './inventario.page';
 import { DetalleInventarioComponent } from './detalle-inventario/detalle-inventario.component';
+import { MenuComponent } from './menu/menu.component';
 
 const routes: Routes = [
   {
@@ -24,7 +25,7 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     ReactiveFormsModule
   ],
-  declarations: [InventarioPage, DetalleInventarioComponent],
-  exports: [DetalleInventarioComponent]
+  declarations: [InventarioPage, DetalleInventarioComponent, MenuComponent],
+  entryComponents: [DetalleInventarioComponent, MenuComponent]
 })
 export class InventarioPageModule { }

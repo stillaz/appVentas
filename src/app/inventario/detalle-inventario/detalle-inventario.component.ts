@@ -71,7 +71,7 @@ export class DetalleInventarioComponent implements OnInit {
     })
   }
 
-  private updateProducto() {
+  public updateProducto() {
     const productoDocument = this.angularFirestore.doc<ProductoOptions>(`productos/${this.idproducto}`);
     productoDocument.valueChanges().subscribe(producto => {
       this.producto = producto;

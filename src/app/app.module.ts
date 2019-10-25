@@ -25,7 +25,6 @@ import { registerLocaleData } from '@angular/common';
 import { DetalleGrupoPageModule } from './detalle-grupo/detalle-grupo.module';
 import { DetalleReporteVentaPageModule } from './detalle-reporte-venta/detalle-reporte-venta.module';
 import { PagoPageModule } from './pago/pago.module';
-import { InventarioPageModule } from './inventario/inventario.module';
 import { DetalleInventarioComponent } from './inventario/detalle-inventario/detalle-inventario.component';
 import { CajaPageModule } from './caja/caja.module';
 import { DetalleCajaComponent } from './caja/detalle-caja/detalle-caja.component';
@@ -34,7 +33,7 @@ registerLocaleData(localeEsCO);
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [DetalleCajaComponent, DetalleInventarioComponent],
+  entryComponents: [DetalleCajaComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -49,7 +48,6 @@ registerLocaleData(localeEsCO);
     DetalleGrupoPageModule,
     DetalleProductoPageModule,
     DetalleReporteVentaPageModule,
-    InventarioPageModule,
     PagoPageModule,
     PipesModule
   ],

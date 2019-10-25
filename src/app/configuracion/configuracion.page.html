@@ -1,5 +1,8 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
     <ion-title>Configuración</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -27,14 +30,6 @@
 
       <ion-text>
         Perfil
-      </ion-text>
-    </ion-item>
-
-    <ion-item (click)="salir()" color="danger">
-      <ion-icon slot="start" name="exit"></ion-icon>
-
-      <ion-text>
-        Salir
       </ion-text>
     </ion-item>
   </ion-list>

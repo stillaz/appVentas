@@ -1,14 +1,13 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Productos</ion-title>
-    <ion-menu-button slot="end" color="primary" *ngIf="ventas">
-      <ion-icon name="cart"></ion-icon>
-      <ion-badge color="danger" *ngIf="cantidad">{{cantidad}}</ion-badge>
-    </ion-menu-button>
-    <ion-buttons slot="end" *ngIf="!ventas">
-      <ion-button (click)="menu($event)">
-        <ion-icon name="more"></ion-icon>
-      </ion-button>
+    <ion-buttons slot="start" *ngIf="!ventas">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end" *ngIf="ventas">
+      <ion-menu-button>
+        <ion-icon [color]="cantidad && 'danger'" name="cart"></ion-icon>
+      </ion-menu-button>
     </ion-buttons>
   </ion-toolbar>
 

@@ -18,11 +18,7 @@ export class ConfiguracionPage implements OnInit {
   }
 
   public ir(page: string) {
-    this.navController.navigateForward(`tabs/configuracion/${page}`);
-  }
-
-  public salir() {
-    this.angularFireAuth.auth.signOut();
+    this.navController.navigateForward(`configuracion/${page}`);
   }
 
 }
