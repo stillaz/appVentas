@@ -27,7 +27,7 @@ const routes: Routes = [
     ReactiveFormsModule
   ],
   declarations: [CajaPage, DetalleCajaComponent, MenuCajaComponent],
-  entryComponents: [MenuCajaComponent],
+  entryComponents: [MenuCajaComponent, DetalleCajaComponent],
   exports: [DetalleCajaComponent]
 })
 export class CajaPageModule { }

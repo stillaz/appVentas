@@ -1,0 +1,111 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Inventario
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrar()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="!producto">
+    <ion-item>
+      <ion-label position="stacked">
+        Ingrese el cógido del producto
+      </ion-label>
+
+      <ion-input [(ngModel)]="idproducto"></ion-input>
+
+      <ion-button slot="end" (click)="updateProducto()">
+        <ion-icon name="search"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-card>
+
+  <ion-card *ngIf="producto">
+    <ion-card-header class="ion-no-padding">
+      <ion-item lines="none">
+        <ion-thumbnail slot="start" *ngIf="producto.imagen">
+          <img [src]="producto.imagen">
+        </ion-thumbnail>
+        <ion-text>
+          <p class="ion-no-margin">
+            <ion-card-title>Ingreso de {{producto.nombre}}</ion-card-title>
+          </p>
+          <p class="ion-no-margin" *ngIf="producto.fechainventario">
+            <ion-card-subtitle>
+              Actualización: {{producto.fechainventario.toDate() | date: 'medium'}} {{producto.estadoinventario}}
+            </ion-card-subtitle>
+          </p>
+          <p class="ion-no-margin" *ngIf="!producto.fechainventario">
+            <ion-card-subtitle>
+              Fecha de último inventario: Sin registro
+            </ion-card-subtitle>
+          </p>
+          <p class="ion-no-margin">
+            <ion-card-subtitle>
+              En inventario: {{producto.cantidad || 0}}
+            </ion-card-subtitle>
+          </p>
+          <p class="ion-no-margin">
+            <ion-card-subtitle *ngIf="sinPreparar">
+              Sin preparar: {{sinPreparar.cantidad || 0}}
+            </ion-card-subtitle>
+          </p>
+        </ion-text>
+      </ion-item>
+    </ion-card-header>
+
+    <ion-card-content *ngIf="cantidad">
+      <ion-row class="ion-no-padding">
+        <ion-col size-md="4" *ngFor="let item of subProductos">
+          <ion-item color="light" class="ion-no-padding">
+            <ion-text>
+              {{item.nombre}}:
+            </ion-text>
+
+            <ion-badge slot="end">{{item.cantidad || 0}}</ion-badge>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-item>
+        <ion-label color="primary" position="stacked">Cantidad a ingresar</ion-label>
+        <ion-input placeholder="0" type="number" [formControl]="cantidad"></ion-input>
+      </ion-item>
+
+      <ion-item color="danger" *ngIf="cantidad.errors && cantidad.touched">
+        <p *ngIf="!sinPreparar || !cantidad.errors.max">La cantidad a ingresar no es válida</p>
+        <p *ngIf="sinPreparar && cantidad.errors.max">
+          La cantidad a ingresar no puede ser mayor a la cantidad sin preparar
+        </p>
+      </ion-item>
+
+      <ion-item color="danger" *ngIf="(producto.id === '01' || producto.id === '04') && !sinPreparar.cantidad">
+        <p>
+          No tiene pollos sin preparar en el inventario
+        </p>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click)="cerrar()">
+        <ion-icon name="close" slot="start"></ion-icon>
+        Cancelar
+      </ion-button>
+      <ion-button color="success" (click)="guardar()"
+        [disabled]="!cantidad || cantidad.invalid || ((producto.id === '01' || producto.id === '04') && !sinPreparar.cantidad)">
+        <ion-icon slot="start" name="arrow-dropright"></ion-icon>
+        Guardar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

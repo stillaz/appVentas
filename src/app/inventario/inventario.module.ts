@@ -8,13 +8,15 @@ import { IonicModule } from '@ionic/angular';
 import { InventarioPage } from './inventario.page';
 import { DetalleInventarioComponent } from './detalle-inventario/detalle-inventario.component';
 import { MenuComponent } from './menu/menu.component';
+import { RegistroInventarioComponent } from './registro-inventario/registro-inventario.component';
 
 const routes: Routes = [
   {
     path: '',
     component: InventarioPage
   },
-  { path: 'detalle/:producto', loadChildren: '../detalle-inventario/detalle-inventario.module#DetalleInventarioPageModule' }
+  { path: 'detalle/:producto', component: DetalleInventarioComponent },
+  { path: 'detalle/?:producto', component: RegistroInventarioComponent },
 ];
 
 @NgModule({
@@ -25,7 +27,7 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     ReactiveFormsModule
   ],
-  declarations: [InventarioPage, DetalleInventarioComponent, MenuComponent],
-  entryComponents: [DetalleInventarioComponent, MenuComponent]
+  declarations: [InventarioPage, DetalleInventarioComponent, MenuComponent, RegistroInventarioComponent],
+  entryComponents: [DetalleInventarioComponent, MenuComponent, RegistroInventarioComponent]
 })
 export class InventarioPageModule { }

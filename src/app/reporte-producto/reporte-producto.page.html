@@ -1,4 +1,4 @@
-<ion-menu side="start" menuId="first">
+<ion-menu side="start" contentId="my-content">
   <ion-header>
     <ion-toolbar color="primary">
       <ion-back-button slot="start"></ion-back-button>
@@ -12,7 +12,7 @@
   </ion-content>
 </ion-menu>
 
-<ion-router-outlet main></ion-router-outlet>
+<ion-router-outlet id="my-content"></ion-router-outlet>
 
 <ion-header>
   <ion-toolbar>
@@ -57,7 +57,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content class="ion-padding">
   <ion-list *ngIf="!reporte || !reporte.detalle[0]">
     <ion-item>
       <ion-skeleton-text animated></ion-skeleton-text>
@@ -70,7 +70,7 @@
     <ion-item>
       <ion-skeleton-text animated></ion-skeleton-text>
     </ion-item>
-    
+
     <ion-item>
       <ion-skeleton-text animated></ion-skeleton-text>
     </ion-item>

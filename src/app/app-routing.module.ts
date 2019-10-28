@@ -1,45 +1,22 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'logueo', loadChildren: './logueo/logueo.module#LogueoPageModule' },
-  { path: 'inventario', loadChildren: './inventario/inventario.module#InventarioPageModule' },
-  { path: 'caja', loadChildren: './caja/caja.module#CajaPageModule' },
-  { path: 'home', loadChildren: './home/home.module#HomePageModule' },
-  {
-    path: 'producto',
-    children: [
-      { path: '', loadChildren: './producto/producto.module#ProductoPageModule' },
-      { path: 'reporte', loadChildren: './reporte-producto/reporte-producto.module#ReporteProductoPageModule' },
-    ]
-  },
-  {
-    path: 'venta',
-    children: [
-      { path: 'detalle', loadChildren: './menu-carrito/menu-carrito.module#MenuCarritoPageModule' },
-      {
-        path: 'reporte',
-        children: [
-          { path: '', loadChildren: './reporte/reporte.module#ReportePageModule' },
-          { path: 'detalle', loadChildren: './detalle-reporte/detalle-reporte.module#DetalleReportePageModule' }
-        ]
-      }
-    ]
-  },
-  {
-    path: 'configuracion',
-    children: [
-      { path: '', loadChildren: './configuracion/configuracion.module#ConfiguracionPageModule' },
-      { path: 'combo', loadChildren: './combo/combo.module#ComboPageModule' },
-      { path: 'grupo', loadChildren: './grupo/grupo.module#GrupoPageModule' },
-      { path: 'usuario', loadChildren: './detalle-usuario/detalle-usuario.module#DetalleUsuarioPageModule' }
-    ]
-  }
+  { path: 'caja', loadChildren: () => import('./caja/caja.module').then(m => m.CajaPageModule) },
+  { path: 'home', loadChildren: () => import('./home/home.module').then(m => m.HomePageModule) },
+  { path: 'inventario', loadChildren: () => import('./inventario/inventario.module').then(m => m.InventarioPageModule) },
+  { path: 'logueo', loadChildren: () => import('./logueo/logueo.module').then(m => m.LogueoPageModule) },
+  { path: 'venta', loadChildren: () => import('./venta/venta.module').then(m => m.VentaPageModule) },
+  { path: 'producto', loadChildren: () => import('./producto/producto.module').then(m => m.ProductoPageModule) },
+  { path: 'reporte/venta', loadChildren: () => import('./reporte-venta/reporte-venta.module').then(m => m.ReporteVentaPageModule) },
+  { path: 'reporte/producto', loadChildren: () => import('./reporte-producto/reporte-producto.module').then(m => m.ReporteProductoPageModule) }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [
+    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
+  ],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

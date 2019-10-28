@@ -6,34 +6,29 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { FirebaseConfig } from './config-firebase';
+import { AppRoutingModule } from './app-routing.module';
+import { registerLocaleData } from '@angular/common';
+import localeEsCO from '@angular/common/locales/es-CO';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
-import { PipesModule } from './pipes.module';
-import { Camera } from '@ionic-native/camera/ngx';
 import { AngularFireStorageModule } from '@angular/fire/storage';
-import { File } from '@ionic-native/file/ngx';
-import { Printer } from '@ionic-native/printer/ngx';
-import { AngularFireAuthModule } from '@angular/fire/auth';
-import { DetalleProductoPageModule } from './detalle-producto/detalle-producto.module';
-import { DatePickerModule } from 'ionic4-date-picker';
-import { CalendarioPageModule } from './calendario/calendario.module';
-import localeEsCO from '@angular/common/locales/es-CO';
-import { registerLocaleData } from '@angular/common';
-import { DetalleGrupoPageModule } from './detalle-grupo/detalle-grupo.module';
-import { DetalleReporteVentaPageModule } from './detalle-reporte-venta/detalle-reporte-venta.module';
-import { PagoPageModule } from './pago/pago.module';
-import { DetalleInventarioComponent } from './inventario/detalle-inventario/detalle-inventario.component';
+import { FirebaseConfig } from './config-firebase';
 import { CajaPageModule } from './caja/caja.module';
-import { DetalleCajaComponent } from './caja/detalle-caja/detalle-caja.component';
+import { Printer } from '@ionic-native/printer/ngx';
+import { PagoPageModule } from './pago/pago.module';
+import { Camera } from '@ionic-native/camera/ngx';
+import { CalendarioPageModule } from './calendario/calendario.module';
+import { DatePickerModule } from 'ionic4-date-picker';
+import { VentaPageModule } from './venta/venta.module';
+import { DetalleVentaComponent } from './venta/detalle-venta/detalle-venta.component';
 
 registerLocaleData(localeEsCO);
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [DetalleCajaComponent],
+  entryComponents: [DetalleVentaComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -45,15 +40,11 @@ registerLocaleData(localeEsCO);
     CajaPageModule,
     CalendarioPageModule,
     DatePickerModule,
-    DetalleGrupoPageModule,
-    DetalleProductoPageModule,
-    DetalleReporteVentaPageModule,
     PagoPageModule,
-    PipesModule
+    VentaPageModule
   ],
   providers: [
     Camera,
-    File,
     Printer,
     StatusBar,
     SplashScreen,

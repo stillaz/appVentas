@@ -5,21 +5,22 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { UsuarioOptions } from './usuario-options';
 import { UsuarioService } from './usuario.service';
+import { UsuarioOptions } from './usuario-options';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
+  styleUrls: ['app.component.scss']
 })
 export class AppComponent {
   constructor(
-    private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar,
     private angularFireAuth: AngularFireAuth,
     private angularFirestore: AngularFirestore,
     public navController: NavController,
+    private platform: Platform,
+    private splashScreen: SplashScreen,
+    private statusBar: StatusBar,
     private usuarioService: UsuarioService
   ) {
     this.initializeApp();

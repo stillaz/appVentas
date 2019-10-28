@@ -24,7 +24,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-list no-padding *ngFor="let grupo of gruposProducto">
+  <ion-list class="no-padding" *ngFor="let grupo of gruposProducto">
     <ion-item-group>
       <ion-item-divider color="medium" *ngIf="agrupar">
         <ion-label>{{grupo.grupo.nombre}}</ion-label>
@@ -34,7 +34,7 @@
         <ion-row *ngIf="!ventas">
           <ion-col size-lg="3" size-md="4" *ngFor="let producto of grupo.items">
             <ion-card style="margin: 0px;" (click)="ventas ? agregar(producto) : ver(producto.id)">
-              <ion-card-header [color]="producto.activo ? 'primary' : 'medium'" text-wrap>
+              <ion-card-header [color]="producto.activo ? 'primary' : 'medium'" class="ion-text-wrap">
                 {{producto.nombre}}
               </ion-card-header>
               <ion-card-content style="padding: 0;" *ngIf="producto.imagen">
@@ -54,7 +54,7 @@
         <ion-row *ngIf="ventas">
           <ion-col size-lg="4" size-md="4" *ngFor="let producto of grupo.items">
             <ion-card style="margin: 0px;" (click)="ventas ? agregar(producto) : ver(producto.id)">
-              <ion-card-header color="primary" text-wrap>
+              <ion-card-header color="primary" class="ion-text-wrap">
                 {{producto.nombre}}
               </ion-card-header>
               <ion-card-content style="padding: 0;" *ngIf="producto.imagen">

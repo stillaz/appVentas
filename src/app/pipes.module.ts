@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { UdpCurrencyPipe } from './udp-currency.pipe';
 import { FechaPipe } from './fecha.pipe';
-import { ComboActivoPipe } from './combo-activo.pipe';
 
 @NgModule({
 	declarations: [UdpCurrencyPipe, FechaPipe],

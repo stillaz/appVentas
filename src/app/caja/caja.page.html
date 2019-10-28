@@ -19,7 +19,7 @@
   </ion-toolbar>
 
   <ion-toolbar *ngIf="movimiento">
-    <ion-item lines="none" no-padding>
+    <ion-item lines="none">
       <ion-text>Fecha <ion-text color="primary">{{movimiento.fecha.toDate() | date: 'medium'}}</ion-text>
       </ion-text>
       <ion-text>, Movimientos <ion-text color="primary">{{movimiento.movimientos}}</ion-text>
@@ -39,7 +39,7 @@
       <ion-icon color="danger" name="arrow-down" size="small" slot="start" *ngIf="item.ingreso <= 0"></ion-icon>
 
       <ion-text color="primary" style="margin: 5px;">
-        <h2 no-margin style="font-size: 18px;">{{item.fecha.toDate() | date: 'medium'}}</h2>
+        <h2 class="ion-no-margin" style="font-size: 18px;">{{item.fecha.toDate() | date: 'medium'}}</h2>
         <ion-note>{{item.estado}} {{item.fecha.toDate() | fecha}}</ion-note>
       </ion-text>
 

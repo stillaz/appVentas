@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+
+    <ion-title *ngIf="usuario">Ventas de {{usuario.nombre}}</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar class="center">
+    <ion-select fill="clear" interface="action-sheet" [interfaceOptions]="customActionSheetOptions"
+      [(ngModel)]="mesSeleccionado" #C (ionChange)="seleccionarMes(C.value)">
+      <ion-select-option *ngFor="let fecha of fechas" [value]="fecha">{{fecha.texto}}</ion-select-option>
+    </ion-select>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="reporte">
+    <ion-list-header>
+      <ion-grid style="width: 100%">
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-text color="medium" class="center">
+                <p>Total ventas</p>
+                <h2 style="color: #32db64">{{ reporte.total | currency:'COP' }}</h2>
+              </ion-text>
+            </ion-item>
+          </ion-col>
+
+          <ion-col>
+            <ion-item>
+              <ion-text color="medium" class="center">
+                <p>Cantidad ventas</p>
+                <h2 style="color: #0cd1e8">{{reporte.cantidad}}</h2>
+              </ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-list-header>
+
+    <ion-item-group *ngFor="let data of reporte.detalle">
+      <ion-item-divider color="medium" sticky>
+        <ion-label>
+          <strong>{{data.fecha}}</strong>
+        </ion-label>
+
+        <ion-text style="margin-right: 10px;" slot="end">
+          <h3>{{data.total | currency:'COP':'symbol'}}</h3>
+        </ion-text>
+      </ion-item-divider>
+
+      <ion-item *ngFor="let venta of data.ventas" (click)="ver(venta.id, venta.fecha.toDate())">
+        <ion-text color="primary">
+          <h4 class="ion-no-margin" style="font-size: 18px;">Venta #{{venta.id}}</h4>
+          <ion-note>{{venta.fecha.toDate() | date: 'shortTime'}}</ion-note>
+        </ion-text>
+
+        <ion-text color="danger" slot="end">
+          <h2 style="font-size: 16px; font-weight: bold;">{{venta.recibido | currency:'COP':'symbol'}}</h2>
+        </ion-text>
+      </ion-item>
+    </ion-item-group>
+  </ion-list>
+</ion-content>

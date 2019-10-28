@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReporteProductoOptions } from '../reporte-producto-options';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { ModalController, MenuController, NavController } from '@ionic/angular';
-import * as moment from 'moment';
+import moment from 'moment';
 import { CalendarioPage } from '../calendario/calendario.page';
 import { VentaOptions } from '../venta-options';
 
@@ -20,13 +20,13 @@ export class ReporteProductoPage implements OnInit {
     'ANUAL'
   ];
 
-  public reporte: ReporteProductoOptions;
   public adelante: boolean;
   public atras = true;
   public anno: string;
   public periocidad: string;
   public semana: string;
   public fecha: Date;
+  public reporte: ReporteProductoOptions;
   public fechas: [{
     fecha: Date,
     texto: string
@@ -328,5 +328,6 @@ export class ReporteProductoPage implements OnInit {
       detalle: [] as any
     };
   }
+
 
 }

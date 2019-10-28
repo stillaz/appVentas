@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController, ActionSheetController } from '@ionic/angular';
 import { ProductoOptions } from '../producto-options';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { DetalleProductoPage } from '../detalle-producto/detalle-producto.page';
 import { GrupoOptions } from '../grupo-options';
 import { Router } from '@angular/router';
 import { CompraService } from '../compra.service';
 import { VentaOptions } from '../venta-options';
 import { GrupoService } from '../grupo.service';
 import { FrontService } from '../front.service';
+import { DetalleProductoComponent } from './detalle-producto/detalle-producto.component';
 
 @Component({
   selector: 'app-producto',
@@ -52,6 +52,7 @@ export class ProductoPage implements OnInit {
     this.marcaseleccion = 'Todas las marcas';
     this.updateGrupos();
     this.ventas = this.router.url.startsWith('/venta/');
+    this.updateProductosGrupo();
     this.carrito = this.compraService.venta;
     this.compraService.getCantidad().subscribe(cantidad => {
       this.cantidad = cantidad;
@@ -59,15 +60,19 @@ export class ProductoPage implements OnInit {
   }
 
   public async agregar(producto: ProductoOptions) {
-    const combos = producto.combos;
-    if (!combos || !combos[0]) {
-      this.compraService.agregar(producto);
-    } else if (combos && combos.length === 1) {
-      producto.combos[0].activo = true;
-      this.compraService.agregar(producto);
-    } else if (combos) {
-      producto.combos.forEach(combo => combo.activo = false);
-      await this.presentCombos(producto);
+    if (!producto.cantidad) {
+      this.fronService.presentAlert('Producto sin unidades', 'No es posible agregar este producto a la venta.', 'Este producto no tiene unidades en inventario.');
+    } else {
+      const combos = producto.combos;
+      if (!combos || !combos[0]) {
+        this.compraService.agregar(producto);
+      } else if (combos && combos.length === 1) {
+        producto.combos[0].activo = true;
+        this.compraService.agregar(producto);
+      } else if (combos) {
+        producto.combos.forEach(combo => combo.activo = false);
+        await this.presentCombos(producto);
+      }
     }
   }
 
@@ -104,8 +109,8 @@ export class ProductoPage implements OnInit {
     });
   }
 
-  public updateProductosGrupo(event: any) {
-    const seleccionado = event.detail.value;
+  public updateProductosGrupo(event?: any) {
+    const seleccionado = (event && event.detail.value) || '0';
     const productoCollection = this.angularFirestore.collection<ProductoOptions>('productos', ref => {
       this.agrupar = true;
       let query: any;
@@ -129,9 +134,9 @@ export class ProductoPage implements OnInit {
     });
   }
 
-  public async ver(idproducto: string) {
+  public async ver(idproducto?: string) {
     const modal = await this.modalController.create({
-      component: DetalleProductoPage,
+      component: DetalleProductoComponent,
       componentProps: { idproducto: idproducto }
     });
     await modal.present();

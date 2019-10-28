@@ -1,20 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { AlertController, ModalController, NavController } from '@ionic/angular';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { CajaService } from '../caja.service';
 import { FrontService } from '../front.service';
-import { NavController, AlertController, ModalController } from '@ionic/angular';
 import { EstadoCaja } from '../estado-caja.enum';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { DetalleCajaComponent } from '../caja/detalle-caja/detalle-caja.component';
 import { CajaOptions } from '../caja-options';
+import { DetalleCajaComponent } from '../caja/detalle-caja/detalle-caja.component';
 import moment from 'moment';
-import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-home',
-  templateUrl: './home.page.html',
-  styleUrls: ['./home.page.scss'],
+  templateUrl: 'home.page.html',
+  styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage {
 
   constructor(
     private alertController: AlertController,
@@ -109,6 +109,5 @@ export class HomePage implements OnInit {
       }
     }
   }
-
 
 }
