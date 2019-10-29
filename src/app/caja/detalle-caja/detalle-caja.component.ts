@@ -82,11 +82,24 @@ export class DetalleCajaComponent implements OnInit {
   public async guardar() {
     const entradaValue = this.entrada.value;
     const entrada = !isNumber(entradaValue) ? parseInt(entradaValue.replace(/[^\d]/g, "")) : entradaValue;
-    if (this.opcion !== 'Inicio' && Number(this.caja.total) !== entrada) {
+    if (this.opcion === 'Cierre' && Number(this.caja.total) !== entrada) {
       const alert = await this.alertController.create({
         header: 'Descuadre de caja',
         subHeader: 'El valor total en caja no coincide con el valor ingresado en el cierre.',
         message: '¿Desea continuar con los valores descuadrados en caja?',
+        buttons: [{
+          text: 'Si',
+          handler: () => {
+            this.procesarCaja(entrada, true);
+          }
+        }, 'No']
+      });
+
+      alert.present();
+    } else if (this.opcion === 'Retiro') {
+      const alert = await this.alertController.create({
+        header: 'Retiro de caja',
+        message: `¿Está seguro retirar ${entrada} de la caja?`,
         buttons: [{
           text: 'Si',
           handler: () => {
@@ -107,8 +120,8 @@ export class DetalleCajaComponent implements OnInit {
       const entrada = control.value;
       const valor = !isNumber(entrada) ? parseInt(entrada.replace(/[^\d]/g, "")) : entrada;
       const max = this.opcion === 'Retiro' && Number(this.caja.total);
-      if (max < valor) {
-        return { max: max < valor };
+      if (max && max < valor) {
+        return { max: true };
       }
       return null;
     }
