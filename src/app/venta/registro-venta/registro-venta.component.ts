@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestoreDocument, AngularFirestore } from '@angular/fire/firestore';
 import { VentaOptions } from 'src/app/venta-options';
-import { AlertController, ModalController, NavController, ToastController } from '@ionic/angular';
+import { AlertController, ModalController, NavController, ToastController, MenuController } from '@ionic/angular';
 import { CompraService } from 'src/app/compra.service';
 import moment from 'moment';
 import { EstadoVenta } from 'src/app/estado-venta.enum';
@@ -22,12 +22,15 @@ export class RegistroVentaComponent implements OnInit {
     private alertController: AlertController,
     private angularFirestore: AngularFirestore,
     private compraService: CompraService,
+    private menuController: MenuController,
     private modalController: ModalController,
     private navController: NavController,
     private toastController: ToastController,
   ) { }
 
   ngOnInit() {
+    this.menuController.enable(false, 'home');
+    this.menuController.enable(true, 'carrito');
     this.compraService.nuevaVenta();
     this.venta = this.compraService.venta;
     this.turnoDocument = this.angularFirestore.doc<any>('configuracion/turno');

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertController, ModalController, NavController } from '@ionic/angular';
+import { AlertController, ModalController, NavController, MenuController } from '@ionic/angular';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { CajaService } from '../caja.service';
@@ -22,12 +22,21 @@ export class HomePage {
     private angularFirestore: AngularFirestore,
     private cajaService: CajaService,
     private frontService: FrontService,
+    private menuController: MenuController,
     private modalController: ModalController,
     private navController: NavController
   ) { }
 
   ngOnInit() {
-    this.validateCaja();
+    this.angularFireAuth.auth.onAuthStateChanged(user => {
+      if (user) {
+        this.validateCaja();
+      }
+    });
+  }
+
+  ionViewDidEnter() {
+    this.menuController.enable(true, 'home');
   }
 
   public ir(pagina: string) {
@@ -94,20 +103,18 @@ export class HomePage {
   }
 
   private async validateCaja() {
-    if (this.angularFireAuth.auth.currentUser) {
-      const cajas = await this.loadCaja();
-      if (cajas.length === 1) {
-        const caja = cajas[0];
-        this.cajaService.updateCaja(caja.id);
-        const estadocaja = caja.estado;
-        if (!estadocaja) {
-          this.presentAlert('Sin caja', '¿Desea abrir caja?', caja, 'Inicio');
-        } else if (estadocaja === EstadoCaja.CERRADA || estadocaja === EstadoCaja.DESCUADRE) {
-          this.presentAlert('Inicio de caja', '¿Desea abrir caja?', caja, 'Apertura');
-        } else {
-          const idfecha = moment(caja.fecha.toDate()).locale('es').format('LLLL');
-          this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`);
-        }
+    const cajas = await this.loadCaja();
+    if (cajas.length === 1) {
+      const caja = cajas[0];
+      this.cajaService.updateCaja(caja.id);
+      const estadocaja = caja.estado;
+      if (!estadocaja) {
+        this.presentAlert('Sin caja', '¿Desea abrir caja?', caja, 'Inicio');
+      } else if (estadocaja === EstadoCaja.CERRADA || estadocaja === EstadoCaja.DESCUADRE) {
+        this.presentAlert('Inicio de caja', '¿Desea abrir caja?', caja, 'Apertura');
+      } else {
+        const idfecha = moment(caja.fecha.toDate()).locale('es').format('LLLL');
+        this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`);
       }
     }
   }

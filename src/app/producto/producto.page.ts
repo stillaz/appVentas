@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, ActionSheetController } from '@ionic/angular';
+import { ModalController, ActionSheetController, Platform } from '@ionic/angular';
 import { ProductoOptions } from '../producto-options';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { GrupoOptions } from '../grupo-options';
@@ -18,6 +18,7 @@ import { DetalleProductoComponent } from './detalle-producto/detalle-producto.co
 export class ProductoPage implements OnInit {
 
   public agrupar: boolean;
+  public mobile: boolean;
   public busqueda: string = '';
   public cantidad: number;
   public carrito: VentaOptions;
@@ -44,14 +45,16 @@ export class ProductoPage implements OnInit {
     private fronService: FrontService,
     private grupoService: GrupoService,
     private modalController: ModalController,
+    private platform: Platform,
     private router: Router
   ) { }
 
   ngOnInit() {
+    this.mobile = this.platform.width() <= 765;
+    this.ventas = this.router.url.startsWith('/venta/');
     this.gruposeleccion = 'Todos los grupos';
     this.marcaseleccion = 'Todas las marcas';
     this.updateGrupos();
-    this.ventas = this.router.url.startsWith('/venta/');
     this.updateProductosGrupo();
     this.carrito = this.compraService.venta;
     this.compraService.getCantidad().subscribe(cantidad => {

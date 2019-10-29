@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { isNumber } from 'util';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { CajaOptions } from 'src/app/caja-options';
@@ -38,36 +38,36 @@ export class DetalleCajaComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.entrada = new FormControl('', Validators.compose([Validators.required, Validators.min(0)]));
     this.caja = this.cajaService.caja;
+    this.entrada = new FormControl(null, Validators.compose([Validators.required, Validators.min(0), this.maximo()]));
     this.movimiento = this.cajaService.movimiento;
     this.updateMovimientos();
   }
 
   private actualizarCaja(caja: CajaOptions, fecha: Date, entrada: number, batch: firebase.firestore.WriteBatch, descuadre?: boolean) {
+    caja.actualizacion = fecha;
+    caja.usuario = this.usuarioService.getUsuario();
     switch (this.opcion) {
       case 'Cierre':
-        caja.actualizacion = fecha;
         caja.estado = descuadre ? EstadoCaja.DESCUADRE : EstadoCaja.CERRADA;
-        caja.usuario = this.usuarioService.getUsuario();
         caja.movimientos = Number(caja.movimientos) + 1;
         caja.descuadre = entrada - Number(caja.total);
         caja.valorDescuadre = caja.total;
         caja.total = entrada;
         break;
 
+      case 'Retiro':
+        caja.ingreso = -entrada;
+        caja.movimientos = Number(caja.movimientos) + 1;
+        caja.total = Number(caja.total) - entrada
+        break;
+
       case 'Inicio':
       case 'Apertura':
-        caja.actualizacion = fecha;
         caja.estado = EstadoCaja.ABIERTA;
         caja.fecha = fecha;
         caja.ingreso = entrada;
-        caja.usuario = this.usuarioService.getUsuario();
-        if (!caja.movimientos) {
-          caja.movimientos = 0;
-          caja.total = 0;
-        }
-        caja.movimientos = Number(caja.movimientos) + 1;
+        caja.movimientos = 1;
         caja.total = entrada;
         break;
     }
@@ -101,6 +101,19 @@ export class DetalleCajaComponent implements OnInit {
     }
   }
 
+  private maximo(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } => {
+      if (Validators.required(control)) return null;
+      const entrada = control.value;
+      const valor = !isNumber(entrada) ? parseInt(entrada.replace(/[^\d]/g, "")) : entrada;
+      const max = this.opcion === 'Retiro' && Number(this.caja.total);
+      if (max < valor) {
+        return { max: max < valor };
+      }
+      return null;
+    }
+  }
+
   private async procesarCaja(entrada: number, descuadre?: boolean) {
     const loading = await this.frontService.presentLoading('Procesando...');
     const fecha = new Date();
@@ -129,13 +142,23 @@ export class DetalleCajaComponent implements OnInit {
     const movimiento = this.opcion === 'Inicio' ? cloneDeep(caja) : this.movimiento;
     const idmovimiento = fecha.getTime().toString();
     movimiento.actualizacion = fecha;
-    movimiento.total = entrada;
     movimiento.usuario = this.usuarioService.getUsuario();
     let movimientoCajaDocument: AngularFirestoreDocument;
     switch (this.opcion) {
+      case 'Apertura':
+        movimiento.estado = EstadoMovimiento.APERTURA_CAJA;
+        movimiento.id = idmovimiento;
+        movimiento.fecha = fecha;
+        movimiento.ingreso = entrada;
+        movimiento.movimientos = 1;
+        movimiento.total = entrada;
+        movimientoCajaDocument = this.angularFirestore.doc(`cajas/${caja.id}/movimientos/${idmovimiento}`);
+        batch.set(movimientoCajaDocument.ref, movimiento);
+        break;
       case 'Cierre':
         movimiento.estado = descuadre ? EstadoMovimiento.DESCUADRE_CAJA : EstadoMovimiento.CIERRE_CAJA;
         movimiento.movimientos = Number(movimiento.movimientos) + 1;
+        movimiento.total = entrada;
         movimientoCajaDocument = this.angularFirestore.doc(`cajas/${caja.id}/movimientos/${movimiento.id}`);
         batch.update(movimientoCajaDocument.ref, movimiento);
         break;
@@ -145,17 +168,16 @@ export class DetalleCajaComponent implements OnInit {
         movimiento.fecha = fecha;
         movimiento.ingreso = entrada;
         movimiento.movimientos = 1;
+        movimiento.total = entrada;
         movimientoCajaDocument = this.angularFirestore.doc(`cajas/${caja.id}/movimientos/${idmovimiento}`);
         batch.set(movimientoCajaDocument.ref, movimiento);
         break;
-      case 'Apertura':
-        movimiento.estado = EstadoMovimiento.APERTURA_CAJA;
-        movimiento.id = idmovimiento;
-        movimiento.fecha = fecha;
-        movimiento.ingreso = entrada;
-        movimiento.movimientos = 1;
-        movimientoCajaDocument = this.angularFirestore.doc(`cajas/${caja.id}/movimientos/${idmovimiento}`);
-        batch.set(movimientoCajaDocument.ref, movimiento);
+      case 'Retiro':
+        movimiento.estado = EstadoMovimiento.RETIRO;
+        movimiento.movimientos = Number(movimiento.movimientos) + 1;
+        movimiento.total = Number(movimiento.total) - entrada;
+        movimientoCajaDocument = this.angularFirestore.doc(`cajas/${caja.id}/movimientos/${movimiento.id}`);
+        batch.update(movimientoCajaDocument.ref, movimiento);
         break;
     }
 
@@ -165,7 +187,8 @@ export class DetalleCajaComponent implements OnInit {
 
   private updateMovimientos() {
     if (this.movimiento) {
-      const movimientoCollection = this.angularFirestore.collection<CajaOptions>(`cajas/${this.caja.id}/movimientos/${this.movimiento.id}/movimientos`, ref => ref.orderBy('fecha', 'asc'));
+      const movimientoCollection = this.angularFirestore
+        .collection<CajaOptions>(`cajas/${this.caja.id}/movimientos/${this.movimiento.id}/movimientos`, ref => ref.orderBy('fecha', 'asc'));
       movimientoCollection.valueChanges().subscribe(movimientos => {
         this.movimientos = this.grupoService.agruparCampo(movimientos, 'estado');
       });

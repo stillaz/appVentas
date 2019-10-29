@@ -1,18 +1,19 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Productos</ion-title>
-    <ion-buttons slot="start" *ngIf="!ventas">
+    <ion-buttons slot="start" *ngIf="!ventas || (ventas && mobile)">
       <ion-back-button></ion-back-button>
     </ion-buttons>
+    <ion-title>Productos</ion-title>
     <ion-buttons slot="end" *ngIf="ventas">
       <ion-menu-button>
         <ion-icon [color]="cantidad && 'danger'" name="cart"></ion-icon>
+        <ion-badge color="danger" *ngIf="cantidad">*</ion-badge>
       </ion-menu-button>
     </ion-buttons>
   </ion-toolbar>
 
   <ion-toolbar>
-    <ion-segment (ionChange)="updateProductosGrupo($event)">
+    <ion-segment scrollable (ionChange)="updateProductosGrupo($event)">
       <ion-segment-button [value]="0" checked>
         Todos
       </ion-segment-button>
