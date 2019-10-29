@@ -32,7 +32,7 @@ export class HomePage {
 
   public ir(pagina: string) {
     const caja = this.cajaService.caja;
-    if (pagina === 'venta/detalle' && (!caja || caja.estado !== EstadoCaja.ABIERTA)) {
+    if (pagina === 'venta/registro' && (!caja || caja.estado !== EstadoCaja.ABIERTA)) {
       this.frontService.presentAlert('Caja sin abrir', 'La caja no se encuentra abierta', 'Debes abrir la caja antes de registrar ventas.')
     } else {
       this.navController.navigateForward(`${pagina}`);
@@ -94,18 +94,20 @@ export class HomePage {
   }
 
   private async validateCaja() {
-    const cajas = await this.loadCaja();
-    if (cajas.length === 1) {
-      const caja = cajas[0];
-      this.cajaService.updateCaja(caja.id);
-      const estadocaja = caja.estado;
-      if (!estadocaja) {
-        this.presentAlert('Sin caja', '¿Desea abrir caja?', caja, 'Inicio');
-      } else if (estadocaja === EstadoCaja.CERRADA || estadocaja === EstadoCaja.DESCUADRE) {
-        this.presentAlert('Inicio de caja', '¿Desea abrir caja?', caja, 'Apertura');
-      } else {
-        const idfecha = moment(caja.fecha.toDate()).locale('es').format('LLLL');
-        this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`);
+    if (this.angularFireAuth.auth.currentUser) {
+      const cajas = await this.loadCaja();
+      if (cajas.length === 1) {
+        const caja = cajas[0];
+        this.cajaService.updateCaja(caja.id);
+        const estadocaja = caja.estado;
+        if (!estadocaja) {
+          this.presentAlert('Sin caja', '¿Desea abrir caja?', caja, 'Inicio');
+        } else if (estadocaja === EstadoCaja.CERRADA || estadocaja === EstadoCaja.DESCUADRE) {
+          this.presentAlert('Inicio de caja', '¿Desea abrir caja?', caja, 'Apertura');
+        } else {
+          const idfecha = moment(caja.fecha.toDate()).locale('es').format('LLLL');
+          this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`);
+        }
       }
     }
   }

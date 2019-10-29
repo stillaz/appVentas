@@ -53,7 +53,7 @@ export class ReporteVentaPage implements OnInit {
   }
 
   public ver(idusuario: string) {
-    this.navController.navigateForward(`reporte-venta/detalle/${idusuario}/${this.fecha.getTime().toString()}`);
+    this.navController.navigateForward(`reporte/venta/detalle/${idusuario}/${this.fecha.getTime().toString()}`);
   }
 
   public updateFechasMes(fechaSeleccionada: Date) {
