@@ -11,6 +11,7 @@ import { CajaOptions } from 'src/app/caja-options';
 })
 export class MenuCajaComponent implements OnInit {
 
+  public caja: CajaOptions;
   public movimiento: CajaOptions;
 
   constructor(
@@ -20,6 +21,7 @@ export class MenuCajaComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.caja = this.cajaService.caja;
     this.movimiento = this.cajaService.movimiento;
   }
 

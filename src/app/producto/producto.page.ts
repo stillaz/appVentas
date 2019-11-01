@@ -63,7 +63,7 @@ export class ProductoPage implements OnInit {
   }
 
   public async agregar(producto: ProductoOptions) {
-    if (!producto.cantidad) {
+    if (!producto.cantidad || producto.cantidad <= 0) {
       this.fronService.presentAlert('Producto sin unidades', 'No es posible agregar este producto a la venta.', 'Este producto no tiene unidades en inventario.');
     } else {
       const productoCarrito = this.carrito && this.carrito.detalle.find(detalle => detalle.producto.id === producto.id);
