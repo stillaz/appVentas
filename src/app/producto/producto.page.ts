@@ -66,15 +66,21 @@ export class ProductoPage implements OnInit {
     if (!producto.cantidad) {
       this.fronService.presentAlert('Producto sin unidades', 'No es posible agregar este producto a la venta.', 'Este producto no tiene unidades en inventario.');
     } else {
-      const combos = producto.combos;
-      if (!combos || !combos[0]) {
-        this.compraService.agregar(producto);
-      } else if (combos && combos.length === 1) {
-        producto.combos[0].activo = true;
-        this.compraService.agregar(producto);
-      } else if (combos) {
-        producto.combos.forEach(combo => combo.activo = false);
-        await this.presentCombos(producto);
+      const productoCarrito = this.carrito && this.carrito.detalle.find(detalle => detalle.producto.id === producto.id);
+      const cantidadProductoCarrito = productoCarrito && productoCarrito.cantidad;
+      if (producto.cantidad <= cantidadProductoCarrito) {
+        this.fronService.presentAlert('Producto sin unidades', 'No es posible agregar este producto a la venta.', 'La cantidad a agregar sobrepasa la cantidad en inventario.');
+      } else {
+        const combos = producto.combos;
+        if (!combos || !combos[0]) {
+          this.compraService.agregar(producto);
+        } else if (combos && combos.length === 1) {
+          producto.combos[0].activo = true;
+          this.compraService.agregar(producto);
+        } else if (combos) {
+          producto.combos.forEach(combo => combo.activo = false);
+          await this.presentCombos(producto);
+        }
       }
     }
   }

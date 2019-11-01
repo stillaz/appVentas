@@ -28,11 +28,7 @@ export class HomePage {
   ) { }
 
   ngOnInit() {
-    this.angularFireAuth.auth.onAuthStateChanged(user => {
-      if (user) {
-        this.validateCaja();
-      }
-    });
+    this.validateCaja();
   }
 
   ionViewDidEnter() {
@@ -104,7 +100,7 @@ export class HomePage {
 
   private async validateCaja() {
     const cajas = await this.loadCaja();
-    if (cajas.length === 1) {
+    if (this.angularFireAuth.auth.currentUser && cajas.length === 1) {
       const caja = cajas[0];
       this.cajaService.updateCaja(caja.id);
       const estadocaja = caja.estado;
@@ -116,6 +112,10 @@ export class HomePage {
         const idfecha = moment(caja.fecha.toDate()).locale('es').format('LLLL');
         this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`);
       }
+    } else {
+      const subscribe = this.angularFireAuth.authState.subscribe();
+      this.validateCaja();
+      subscribe.unsubscribe();
     }
   }
 

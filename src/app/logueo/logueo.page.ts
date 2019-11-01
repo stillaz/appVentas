@@ -43,10 +43,24 @@ export class LogueoPage implements OnInit {
   }
 
   async presentAlertError(err: any) {
+    let mensaje: string;
+    switch (err.code) {
+      case 'auth/user-not-found':
+        mensaje = 'El usuario ingresado no existe en la base de datos.';
+        break;
+
+      case 'auth/wrong-password':
+        mensaje = 'La contraseña no es válida';
+        break;
+
+      default:
+        mensaje = err;
+        break;
+    }
     const alert = await this.alertController.create({
       header: 'Ha ocurrido un error',
       subHeader: `Se presentó un error al loguearse en el sistema.`,
-      message: `${err}`,
+      message: mensaje,
       buttons: ['OK']
     });
 
