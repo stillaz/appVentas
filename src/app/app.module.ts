@@ -14,7 +14,7 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule } from '@angular/fire/storage';
-import { FirebaseConfig } from './config-firebase';
+import { firebaseConfig } from './config-firebase';
 import { CajaPageModule } from './caja/caja.module';
 import { Printer } from '@ionic-native/printer/ngx';
 import { PagoPageModule } from './pago/pago.module';
@@ -34,7 +34,7 @@ registerLocaleData(localeEsCO);
     IonicModule.forRoot(),
     AppRoutingModule,
     AngularFireAuthModule,
-    AngularFireModule.initializeApp(FirebaseConfig),
+    AngularFireModule.initializeApp(firebaseConfig),
     AngularFirestoreModule.enablePersistence(),
     AngularFireStorageModule,
     CajaPageModule,

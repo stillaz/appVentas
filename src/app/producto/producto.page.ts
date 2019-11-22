@@ -139,6 +139,9 @@ export class ProductoPage implements OnInit {
   private updateProductos(productoCollection: AngularFirestoreCollection<ProductoOptions>) {
     productoCollection.valueChanges().subscribe(productos => {
       this.productos = productos;
+      this.productos.forEach(producto => {
+        this.angularFirestore.doc(`productos/${producto.id}`).update({ cantidad: 0 });
+      })
       this.gruposProducto = this.grupoService.agrupar(productos);
     });
   }
