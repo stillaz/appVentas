@@ -9,6 +9,14 @@
 
 <ion-content class="ion-padding">
   <ion-list>
+    <ion-item (click)="ir('caja')">
+      <ion-icon slot="start" name="cash"></ion-icon>
+
+      <ion-text>
+        Administrar cajas
+      </ion-text>
+    </ion-item>
+
     <ion-item (click)="ir('combo')">
       <ion-icon slot="start" name="albums"></ion-icon>
 
@@ -30,6 +38,14 @@
 
       <ion-text>
         Perfil
+      </ion-text>
+    </ion-item>
+
+    <ion-item (click)="ir('producto')">
+      <ion-icon slot="start" name="pizza"></ion-icon>
+
+      <ion-text>
+        Productos
       </ion-text>
     </ion-item>
   </ion-list>

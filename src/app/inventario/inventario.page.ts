@@ -33,10 +33,14 @@ export class InventarioPage implements OnInit {
   }
 
   private updateInventario() {
-    const productosCollection = this.angularFirestore.collection<any>('productos');
+    const productosCollection = this.angularFirestore.collection<any>('productos', ref => ref.where('maneja_inventario', '==', true));
     productosCollection.valueChanges().subscribe(productos => {
       this.productos = productos;
-      this.productos.forEach(producto => producto.actualizacion = moment(producto.fechainventario.toDate()).locale('es').calendar());
+      this.productos.forEach(producto => {
+        if (producto.fechainventario) {
+          producto.actualizacion = moment(producto.fechainventario.toDate()).locale('es').calendar()
+        }
+      });
     });
   }
 

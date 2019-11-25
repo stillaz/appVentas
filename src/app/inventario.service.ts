@@ -15,7 +15,7 @@ export class InventarioService {
 
   constructor(private angularFirestore: AngularFirestore, private usuarioService: UsuarioService) { }
 
-  public actualizarInventario(detalle: DetalleOptions[], batch: firebase.firestore.WriteBatch, estado: string, tipo: 1 | -1, preparacion?: boolean) {
+  public actualizarInventario(detalle: DetalleOptions[], batch: firebase.firestore.WriteBatch, estado: string, tipo: 1 | -1, idSinPreparar?: string) {
     return new Promise(async resolve => {
       const productosDetalle = detalle.map(item => item.producto);
       const grupos = productosDetalle.map(producto => producto.grupo);
@@ -29,8 +29,8 @@ export class InventarioService {
         acutalGrupoProductos[grupo] = cloneDeep(productos);
       }
 
-      if (preparacion) {
-        const producto: ProductoOptions = await this.loadProductos(null, '00');
+      if (idSinPreparar) {
+        const producto: ProductoOptions = await this.loadProductos(null, idSinPreparar);
         const cantidad = detalle.map(item => item.cantidad ? Number(item.cantidad) : 0).reduce((a, b) => a + b);
         this.reducir(batch, cantidad, estado, fecha, idinventario, producto);
       }

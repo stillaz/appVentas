@@ -90,6 +90,7 @@ export class DetalleProductoComponent implements OnInit {
       grupo: [this.producto.grupo, Validators.required],
       precio: [this.producto.precio, Validators.required],
       imagen: [this.producto.imagen],
+      maneja_inventario: [this.producto.maneja_inventario],
       activo: [this.producto ? this.producto.activo : true]
     });
     const grupo = this.todo.value.grupo;
@@ -138,7 +139,8 @@ export class DetalleProductoComponent implements OnInit {
         imagen: producto.imagen,
         grupo: producto.grupo,
         precio: producto.precio,
-        activo: producto.activo
+        activo: producto.activo,
+        maneja_inventario: producto.maneja_inventario
       }).then(() => {
         this.presentToast('El producto ha sido actualizado');
         this.loading.dismiss();

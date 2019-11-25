@@ -12,8 +12,10 @@ const routes: Routes = [
     path: '',
     component: ConfiguracionPage
   },
+  { path: 'caja', loadChildren: () => import('../caja/caja.module').then(m => m.CajaPageModule) },
   { path: 'combo', loadChildren: () => import('../combo/combo.module').then(m => m.ComboPageModule) },
   { path: 'grupo', loadChildren: () => import('../grupo/grupo.module').then(m => m.GrupoPageModule) },
+  { path: 'producto', loadChildren: () => import('../grupo/grupo.module').then(m => m.GrupoPageModule) },
   { path: 'usuario', loadChildren: () => import('../usuario/usuario.module').then(m => m.UsuarioPageModule) }
 ];
 

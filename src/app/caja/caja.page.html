@@ -1,5 +1,12 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar *ngIf="administracion">
+    <ion-back-button slot="start"></ion-back-button>
+    <ion-title>
+      Cajas
+    </ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar *ngIf="!administracion">
     <ion-back-button slot="start"></ion-back-button>
     <ion-avatar slot="start" *ngIf="movimiento && movimiento.usuario.imagen">
       <img [src]="movimiento.usuario.imagen">
@@ -32,7 +39,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content *ngIf="!administracion">
   <ion-list>
     <ion-item *ngFor="let item of movimientos">
       <ion-icon color="success" name="arrow-up" size="small" slot="start"
@@ -50,4 +57,22 @@
       </ion-text>
     </ion-item>
   </ion-list>
+</ion-content>
+
+<ion-content *ngIf="administracion">
+  <ion-item color="warning" *ngIf="!cajas || !cajas[0]">
+    Sin cajas registradas
+  </ion-item>
+
+  <ion-list *ngIf="cajas">
+    <ion-item *ngFor="let item of cajas" (click)="ver(item.id)">
+      {{item.id}}
+    </ion-item>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="ver()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

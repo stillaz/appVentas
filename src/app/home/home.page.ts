@@ -16,6 +16,8 @@ import moment from 'moment';
 })
 export class HomePage {
 
+  public caja: CajaOptions;
+
   constructor(
     private alertController: AlertController,
     private angularFireAuth: AngularFireAuth,
@@ -36,9 +38,12 @@ export class HomePage {
   }
 
   public ir(pagina: string) {
-    const caja = this.cajaService.caja;
-    if (pagina === 'venta/registro' && (!caja || caja.estado !== EstadoCaja.ABIERTA)) {
+    this.caja = this.cajaService.caja;
+    if (pagina === 'venta/registro' && (!this.caja || this.caja.estado !== EstadoCaja.ABIERTA)) {
       this.frontService.presentAlert('Caja sin abrir', 'La caja no se encuentra abierta', 'Debes abrir la caja antes de registrar ventas.')
+    } else if (pagina === 'caja' && !this.caja) {
+      this.frontService.presentAlert('Caja', 'No tiene alguna caja registrada en el sistema', 'Registra una caja para poder realizar ventas.');
+      this.navController.navigateForward(`configuracion/${pagina}`);
     } else {
       this.navController.navigateForward(`${pagina}`);
     }

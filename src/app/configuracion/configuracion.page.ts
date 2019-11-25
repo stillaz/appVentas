@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
-import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-configuracion',
@@ -10,8 +9,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 export class ConfiguracionPage implements OnInit {
 
   constructor(
-    private navController: NavController,
-    private angularFireAuth: AngularFireAuth
+    private navController: NavController
   ) { }
 
   ngOnInit() {

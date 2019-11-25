@@ -20,7 +20,7 @@
 
       <ion-input [(ngModel)]="idproducto"></ion-input>
 
-      <ion-button slot="end" (click)="updateProducto()">
+      <ion-button slot="end" (click)="form()">
         <ion-icon name="search"></ion-icon>
       </ion-button>
     </ion-item>
@@ -85,7 +85,7 @@
         </p>
       </ion-item>
 
-      <ion-item color="danger" *ngIf="(producto.id === '01' || producto.id === '04') && !sinPreparar.cantidad">
+      <ion-item color="danger" *ngIf="(tipo === 'Pollo Asado' || tipo === 'Pollo Brooster') && !sinPreparar.cantidad">
         <p>
           No tiene pollos sin preparar en el inventario
         </p>
@@ -102,7 +102,7 @@
         Cancelar
       </ion-button>
       <ion-button color="success" (click)="guardar()"
-        [disabled]="!cantidad || cantidad.invalid || ((producto.id === '01' || producto.id === '04') && !sinPreparar.cantidad)">
+        [disabled]="!cantidad || cantidad.invalid || ((tipo === 'Pollo Asado' || tipo === 'Pollo Brooster') && !sinPreparar.cantidad)">
         <ion-icon slot="start" name="arrow-dropright"></ion-icon>
         Guardar
       </ion-button>

@@ -9,13 +9,8 @@
     Cerrar caja
   </ion-item>
 
-  <ion-item color="success" (click)="ejecutar('Apertura')"
+  <ion-item color="success" (click)="ejecutar(movimiento ? 'Apertura' : 'Inicio')"
     *ngIf="caja && (caja.estado === 'Cerrada' || caja.estado === 'Descuadre')">
-    <ion-icon name="open" slot="start"></ion-icon>
-    Abrir caja
-  </ion-item>
-
-  <ion-item color="success" (click)="ejecutar('Inicio')" *ngIf="!movimiento">
     <ion-icon name="open" slot="start"></ion-icon>
     Abrir caja
   </ion-item>

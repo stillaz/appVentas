@@ -11,7 +11,7 @@ export interface ProductoOptions {
     grupo: GrupoOptions,
     id: string,
     imagen: string,
-    inventario: string
+    maneja_inventario: boolean,
     nombre: string,
     precio: number
 }

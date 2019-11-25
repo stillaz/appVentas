@@ -160,7 +160,8 @@ export class PagoPage implements OnInit {
     return new Promise<number>((resolve, reject) => {
       this.turnoDocument.valueChanges().subscribe(turno => {
         if (turno) {
-          const dif = moment(new Date()).diff(turno.actualizacion.toDate(), 'hours', true);
+          const dif = moment(new Date())
+            .diff((turno.actualizacion && turno.actualizacion.toDate()) || new Date(), 'hours', true);
           if (dif < 4) {
             resolve(Number(turno.id) + 1);
           } else {
