@@ -59,9 +59,18 @@ export class RegistroInventarioComponent implements OnInit {
     const loading = await this.frontService.presentLoading('Actualizando inventario...');
     const nuevo = Number(this.cantidad.value);
     const batch = this.angularFirestore.firestore.batch();
-    if (this.tipo === ConfiguracionProducto.POLLO_ASADO
-      || this.tipo === ConfiguracionProducto.POLLO_BROOSTER) {
-      const estado = this.tipo === ConfiguracionProducto.POLLO_ASADO ? EstadoInventario.PREPARAR_ASADO : EstadoInventario.PREPARAR_BROSTEER;
+    let estado: string;
+    switch (this.tipo) {
+      case ConfiguracionProducto.POLLO_ASADO:
+        estado = EstadoInventario.PREPARAR_ASADO;
+        break;
+
+      case ConfiguracionProducto.POLLO_BROOSTER:
+        estado = EstadoInventario.PREPARAR_BROSTEER;
+        break;
+    }
+
+    if (estado) {
       this.producto.combos.forEach(combo => combo.activo = true);
       const detalle: DetalleOptions = { cantidad: nuevo, producto: this.producto };
       const sinPreparar = this.configuracionProducto.productos
@@ -154,8 +163,7 @@ export class RegistroInventarioComponent implements OnInit {
     productoDocument.valueChanges().subscribe(producto => {
       this.producto = producto;
       this.updateInventario();
-      if (this.tipo === ConfiguracionProducto.POLLO_ASADO
-        || this.tipo === ConfiguracionProducto.POLLO_BROOSTER) {
+      if (this.tipo) {
         this.updateSinPreparacion();
         this.updateSubProductos();
       }

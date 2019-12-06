@@ -64,8 +64,8 @@ export class CajaPage implements OnInit {
           ingreso: null,
           movimientos: 0,
           total: 0,
-          usuario: null,
-        }
+          usuario: null
+        };
         await cajaDocument.set(cajaData);
         await this.frontService.presentToast(`La caja ${id} ha sido registrada`);
         this.cajaService.updateCaja(id);

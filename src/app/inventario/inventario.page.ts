@@ -33,7 +33,8 @@ export class InventarioPage implements OnInit {
   }
 
   private updateInventario() {
-    const productosCollection = this.angularFirestore.collection<any>('productos', ref => ref.where('maneja_inventario', '==', true));
+    const productosCollection = this.angularFirestore
+      .collection<any>('productos', ref => ref.where('maneja_inventario', '==', true).orderBy('nombre'));
     productosCollection.valueChanges().subscribe(productos => {
       this.productos = productos;
       this.productos.forEach(producto => {

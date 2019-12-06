@@ -9,6 +9,7 @@ import { CajaPage } from './caja.page';
 import { DetalleCajaComponent } from './detalle-caja/detalle-caja.component';
 import { PipesModule } from '../pipes.module';
 import { MenuCajaComponent } from './menu-caja/menu-caja.component';
+import { MensajeComponent } from './mensaje/mensaje.component';
 
 const routes: Routes = [
   {
@@ -26,8 +27,8 @@ const routes: Routes = [
     PipesModule,
     ReactiveFormsModule
   ],
-  declarations: [CajaPage, DetalleCajaComponent, MenuCajaComponent],
-  entryComponents: [MenuCajaComponent, DetalleCajaComponent],
+  declarations: [CajaPage, DetalleCajaComponent, MenuCajaComponent, MensajeComponent],
+  entryComponents: [MenuCajaComponent, DetalleCajaComponent, MensajeComponent],
   exports: [DetalleCajaComponent]
 })
 export class CajaPageModule { }

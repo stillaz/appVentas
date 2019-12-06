@@ -43,6 +43,9 @@ export class InventarioService {
           combos.productos.forEach(subproducto => {
             const subproductoInventario = grupoProductos[subproducto.grupo.id]
               .find((grupoProducto: ProductoOptions) => grupoProducto.id === subproducto.id);
+            if (subproducto.id === "7") {
+              subproducto.cantidad++;
+            }
             const cantidadSubproducto = Number(subproducto.cantidad) * cantidad;
             const cantidadSubproductoInventario = Number(subproductoInventario.cantidad);
             subproductoInventario.cantidad = cantidadSubproductoInventario + cantidadSubproducto * tipo;
@@ -177,7 +180,10 @@ export class InventarioService {
     const grupoProductos = [];
     return new Promise<any[]>(resolve => {
       grupos.forEach(async (grupo, index) => {
-        grupoProductos[grupo.id] = await this.loadProductos(grupo.id);
+        if (grupoProductos[grupo.id] === undefined) {
+          grupoProductos[grupo.id] = await this.loadProductos(grupo.id);
+        }
+
         if (index === (grupos.length - 1)) {
           resolve(grupoProductos);
         }

@@ -12,6 +12,7 @@ import { CajaService } from 'src/app/caja.service';
 import { GrupoService } from 'src/app/grupo.service';
 import cloneDeep from 'lodash/cloneDeep';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { MensajeComponent } from '../mensaje/mensaje.component';
 
 @Component({
   selector: 'app-detalle-caja',
@@ -80,30 +81,33 @@ export class DetalleCajaComponent implements OnInit {
   }
 
   public async guardar() {
+    let titulo: string;
     const entradaValue = this.entrada.value;
     const entrada = !isNumber(entradaValue) ? parseInt(entradaValue.replace(/[^\d]/g, "")) : entradaValue;
     if (this.opcion === 'Cierre' && Number(this.caja.total) !== entrada) {
+      titulo = 'Descuadre de caja';
       const alert = await this.alertController.create({
-        header: 'Descuadre de caja',
+        header: titulo,
         subHeader: 'El valor total en caja no coincide con el valor ingresado en el cierre.',
         message: '¿Desea continuar con los valores descuadrados en caja?',
         buttons: [{
           text: 'Si',
           handler: () => {
-            this.procesarCaja(entrada, true);
+            this.presentMensaje(titulo, entrada);
           }
         }, 'No']
       });
 
       alert.present();
     } else if (this.opcion === 'Retiro') {
+      titulo = 'Retiro de caja';
       const alert = await this.alertController.create({
-        header: 'Retiro de caja',
+        header: titulo,
         message: `¿Está seguro retirar ${entrada} de la caja?`,
         buttons: [{
           text: 'Si',
           handler: () => {
-            this.procesarCaja(entrada, true);
+            this.presentMensaje(titulo, entrada);
           }
         }, 'No']
       });
@@ -127,7 +131,24 @@ export class DetalleCajaComponent implements OnInit {
     }
   }
 
-  private async procesarCaja(entrada: number, descuadre?: boolean) {
+  private async presentMensaje(mensaje: string, entrada: number) {
+    const modal = await this.modalController.create({
+      component: MensajeComponent,
+      componentProps: {
+        titulo: mensaje
+      }
+    });
+
+    modal.onDidDismiss().then(res => {
+      if (res && res.data) {
+        this.procesarCaja(entrada, true, res.data);
+      }
+    });
+
+    modal.present();
+  }
+
+  private async procesarCaja(entrada: number, descuadre?: boolean, mensaje?: string) {
     const loading = await this.frontService.presentLoading('Procesando...');
     const fecha = new Date();
 
@@ -135,7 +156,7 @@ export class DetalleCajaComponent implements OnInit {
     const caja = this.cajaService.caja;
 
     this.actualizarCaja(caja, fecha, entrada, batch, descuadre);
-    this.registroMovimiento(caja, fecha, entrada, batch, descuadre);
+    this.registroMovimiento(caja, fecha, entrada, batch, descuadre, mensaje);
 
     batch.commit().then(() => {
       loading.dismiss();
@@ -145,13 +166,15 @@ export class DetalleCajaComponent implements OnInit {
       } else {
         this.frontService.presentToast('Se ha realizado la apertura de la caja');
       }
+
+      this.cajaService.updateCaja(caja.id);
     }).catch(err => {
       loading.dismiss();
       this.frontService.presentAlert('Ha ocurrido un error', `Error: ${err}`, 'Se presentó al abrir caja.')
     });
   }
 
-  private registroMovimiento(caja: CajaOptions, fecha: Date, entrada: number, batch: firebase.firestore.WriteBatch, descuadre?: boolean) {
+  private registroMovimiento(caja: CajaOptions, fecha: Date, entrada: number, batch: firebase.firestore.WriteBatch, descuadre?: boolean, mensaje?: string) {
     const movimiento = this.opcion === 'Inicio' ? cloneDeep(caja) : this.movimiento;
     const idmovimiento = fecha.getTime().toString();
     movimiento.actualizacion = fecha;
@@ -172,6 +195,8 @@ export class DetalleCajaComponent implements OnInit {
         movimiento.estado = descuadre ? EstadoMovimiento.DESCUADRE_CAJA : EstadoMovimiento.CIERRE_CAJA;
         movimiento.movimientos = Number(movimiento.movimientos) + 1;
         movimiento.total = entrada;
+        movimiento.ingreso = entrada;
+        movimiento.mensaje = descuadre && mensaje;
         movimientoCajaDocument = this.angularFirestore.doc(`cajas/${caja.id}/movimientos/${movimiento.id}`);
         batch.update(movimientoCajaDocument.ref, movimiento);
         break;
@@ -187,8 +212,10 @@ export class DetalleCajaComponent implements OnInit {
         break;
       case 'Retiro':
         movimiento.estado = EstadoMovimiento.RETIRO;
+        movimiento.mensaje = mensaje;
         movimiento.movimientos = Number(movimiento.movimientos) + 1;
         movimiento.total = Number(movimiento.total) - entrada;
+        movimiento.ingreso = entrada;
         movimientoCajaDocument = this.angularFirestore.doc(`cajas/${caja.id}/movimientos/${movimiento.id}`);
         batch.update(movimientoCajaDocument.ref, movimiento);
         break;
