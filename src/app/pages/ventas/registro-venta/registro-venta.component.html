@@ -1,0 +1,69 @@
+<ion-split-pane contentId="menu-content" when="md">
+  <ion-menu contentId="menu-content" menu-id="carrito" side="end">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Venta</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <ion-grid id="detalle">
+        <ion-row class="ion-align-items-center" *ngFor="let item of venta.detalle">
+          <ion-col size="2">
+            <ion-text>{{item.cantidad}}</ion-text>
+          </ion-col>
+
+          <ion-col size="6">
+            <ion-text>
+              {{item.producto.nombre}}
+            </ion-text>
+            <ion-note *ngIf="item.producto.combos && item.producto.combos[1]" style="font-size: 12px;">
+              {{item.producto | combo}}
+            </ion-note>
+          </ion-col>
+
+          <ion-col size="3" style="padding-left: 0; padding-right: 0px;">
+            <ion-text>{{item.subtotal | currency:'COP':'symbol':'1.0-0'}}</ion-text>
+          </ion-col>
+
+          <ion-col size="1">
+            <ion-button class="ion-no-padding" size="small" fill="clear" color="danger"
+              (click)="quitar(item.producto.id, item.producto.nombre, item.cantidad)">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-content>
+
+    <ion-footer>
+      <ion-text color="danger">
+        <h4 style="margin: 10px; font-weight: bold; text-align: right;">
+          Total: {{venta.total | currency:'COP':'symbol':'1.0-0'}}
+        </h4>
+      </ion-text>
+
+      <ion-button [disabled]="!venta.detalle[0]" expand="block" color="tertiary" (click)="domicilio()">
+        <ion-icon name="git-merge-outline" slot="start"></ion-icon>
+        Domicilio
+      </ion-button>
+
+      <ion-button [disabled]="!venta.detalle[0]" expand="block" color="warning" (click)="pendiente()">
+        <ion-icon name="timer-outline" slot="start"></ion-icon>
+        Pendiente
+      </ion-button>
+
+      <ion-button [disabled]="!venta.detalle[0]" expand="block" color="success" (click)="terminar()">
+        <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+        Finalizar
+      </ion-button>
+
+      <ion-button expand="block" fill="outline" color="danger" (click)="cancelar()">
+        <ion-icon name="close-outline" slot="start"></ion-icon>
+        Cancelar
+      </ion-button>
+    </ion-footer>
+  </ion-menu>
+
+  <ion-router-outlet id="menu-content"></ion-router-outlet>
+</ion-split-pane>

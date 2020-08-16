@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+      <ion-back-button slot="start"></ion-back-button>
+      <ion-title>
+          Inventario
+      </ion-title>
+      <ion-buttons slot="end">
+          <ion-button (click)="menu($event)">
+              <ion-icon name="more"></ion-icon>
+          </ion-button>
+      </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+      <ion-item *ngFor="let detalle of productos" (click)="ver(detalle.id)">
+          <ion-thumbnail item-start *ngIf="detalle.imagen">
+              <img [src]="detalle.imagen">
+          </ion-thumbnail>
+          <ion-text style="margin: 5px;" color="dark">
+              <h4 class="ion-no-margin" style="font-size: 18px;">{{detalle.nombre}}</h4>
+              <ion-note>Última actualización: {{detalle.estadoinventario}} -
+                  {{detalle.actualizacion}}</ion-note>
+          </ion-text>
+          <ion-badge color="danger" slot="end">
+              {{detalle.cantidad}}
+          </ion-badge>
+      </ion-item>
+  </ion-list>
+</ion-content>

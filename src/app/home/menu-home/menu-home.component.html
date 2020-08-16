@@ -4,17 +4,18 @@
       <ion-title>Menu</ion-title>
     </ion-toolbar>
   </ion-header>
+
   <ion-content>
     <ion-list>
-      <ion-item (click)="irA('configuracion/usuario')">
+      <ion-item button detail (click)="irA('configuracion/usuario')">
         <ion-icon name="person" slot="start"></ion-icon>
         <ion-label>Perfil</ion-label>
       </ion-item>
-      <ion-item (click)="irA('configuracion')">
+      <ion-item button detail (click)="irA('configuracion')">
         <ion-icon name="settings" slot="start"></ion-icon>
         <ion-label>Configuración</ion-label>
       </ion-item>
-      <ion-item color="danger" (click)="salir()">
+      <ion-item button color="danger" (click)="salir()">
         <ion-icon name="exit" slot="start"></ion-icon>
         <ion-label>Salir</ion-label>
       </ion-item>

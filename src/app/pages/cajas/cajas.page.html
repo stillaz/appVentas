@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar *ngIf="administracion">
+    <ion-back-button slot="start"></ion-back-button>
+    <ion-title>
+      Cajas
+    </ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar *ngIf="!administracion && caja">
+    <ion-back-button slot="start"></ion-back-button>
+    <ion-avatar slot="start" *ngIf="movimiento && movimiento.usuario.imagen">
+      <img [src]="movimiento.usuario.imagen">
+    </ion-avatar>
+    <ion-title>
+      Caja {{caja.id}} {{movimiento && movimiento.id}}
+    </ion-title>
+    <ion-title [color]="caja.estado === 'Abierta' ? 'warning' : 'secondary'" size="small" *ngIf="caja">
+      {{caja.estado || 'Sin iniciar'}}
+    </ion-title>
+    <ion-note *ngIf="movimiento">{{movimiento.usuario.nombre}}</ion-note>
+    <ion-buttons slot="end">
+      <ion-button (click)="menu($event)">
+        <ion-icon name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar *ngIf="movimiento">
+    <ion-item lines="none">
+      <ion-text>Fecha <ion-text color="primary">{{movimiento.fecha.toDate() | date: 'medium'}}</ion-text>
+      </ion-text>
+      <ion-text>, Movimientos <ion-text color="primary">{{movimiento.movimientos}}</ion-text>
+      </ion-text>
+      <ion-text>, Cierra con <ion-text color="primary">{{movimiento.total | currency:'COP':'symbol':'1.0-0'}}</ion-text>
+      </ion-text>
+    </ion-item>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="!administracion">
+  <ion-list *ngIf="movimientos && movimientos[0]">
+    <ion-item [attr.track]="item.estado | lowercase" *ngFor="let item of movimientos">
+      <ion-icon name="caret-up" slot="start" *ngIf="item.estado === 'Apertura'"></ion-icon>
+      <ion-icon name="caret-down" slot="start" *ngIf="item.estado === 'Cierre'"></ion-icon>
+      <ion-icon name="alert-circle" slot="start" *ngIf="item.estado === 'Descuadre'"></ion-icon>
+      <ion-icon name="checkmark-done" slot="start" *ngIf="item.estado === 'Inicio'"></ion-icon>
+      <ion-icon name="arrow-down" slot="start" *ngIf="item.estado === 'Retiro'"></ion-icon>
+      <ion-icon name="arrow-up" slot="start" *ngIf="item.estado === 'Venta'"></ion-icon>
+
+      <ion-text color="primary">
+        <p style="margin: 2px;">{{item.fecha.toDate() | date: 'medium'}}</p>
+        <ion-note>{{item.estado}}</ion-note>
+        <br>
+        <ion-note>{{item.fecha.toDate() | fecha}}</ion-note>
+      </ion-text>
+
+      <ion-text [color]="(item.ingreso < 0 || item.estado === 'Retiro') ? 'danger' : 'success'" slot="end">
+        <h3>{{item.ingreso | currency:'COP':'symbol':'1.0-0'}}</h3>
+      </ion-text>
+    </ion-item>
+  </ion-list>
+
+  <ion-item color="warning" lines="none" *ngIf="!movimientos || !movimientos[0]">
+    <ion-text>
+      Sin movimientos
+    </ion-text>
+  </ion-item>
+</ion-content>
+
+<ion-content *ngIf="administracion">
+  <ion-item color="warning" *ngIf="!cajas || !cajas[0]">
+    Sin cajas registradas
+  </ion-item>
+
+  <ion-list *ngIf="cajas">
+    <ion-item *ngFor="let item of cajas" (click)="ver(item.id)">
+      {{item.id}}
+    </ion-item>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="ver()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

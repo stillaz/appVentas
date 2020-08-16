@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Configuración</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item (click)="ir('cajas')">
+      <ion-icon slot="start" name="cash"></ion-icon>
+
+      <ion-text>
+        Administrar cajas
+      </ion-text>
+    </ion-item>
+
+    <ion-item (click)="ir('combos')">
+      <ion-icon slot="start" name="albums"></ion-icon>
+
+      <ion-text>
+        Combos
+      </ion-text>
+    </ion-item>
+
+    <ion-item (click)="ir('grupos')">
+      <ion-icon slot="start" name="albums"></ion-icon>
+
+      <ion-text>
+        Grupos
+      </ion-text>
+    </ion-item>
+
+    <ion-item (click)="ir('usuarios')">
+      <ion-icon slot="start" name="person"></ion-icon>
+
+      <ion-text>
+        Perfil
+      </ion-text>
+    </ion-item>
+
+    <ion-item (click)="ir('productos')">
+      <ion-icon slot="start" name="pizza"></ion-icon>
+
+      <ion-text>
+        Productos
+      </ion-text>
+    </ion-item>
+  </ion-list>
+</ion-content>

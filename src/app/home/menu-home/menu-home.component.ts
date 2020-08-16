@@ -20,6 +20,6 @@ export class MenuHomeComponent implements OnInit {
   }
 
   public salir() {
-    this.angularFireAuth.auth.signOut();
+    this.angularFireAuth.signOut();
   }
 }

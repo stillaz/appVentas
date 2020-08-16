@@ -1,0 +1,27 @@
+$categories: (
+    apertura: #3bc7c4,
+    cierre: #fd8b2d,
+    retiro: #fe4c52,
+    inicio: #69bb7b,
+    descuadre: #222,
+);
+
+@function auxiliary-categories() {
+    @return map-remove($categories);
+}
+
+@each $track, $value in auxiliary-categories() {
+    ion-item[track="#{$track}"] {
+        border-left: 2px solid $value;
+
+        ion-text {
+            p {
+                color: $value;
+            }
+        }
+
+        ion-icon {
+            color: $value;
+        }
+    }
+}

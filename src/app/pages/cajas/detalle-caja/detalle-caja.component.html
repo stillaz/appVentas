@@ -1,0 +1,100 @@
+<ion-header *ngIf="caja">
+  <ion-toolbar>
+    <ion-title>
+      {{opcion}} de caja
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrar()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="caja && movimiento">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        Caja: {{caja.id}}
+      </ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-item>
+        <ion-text>
+          Inicio {{movimiento.ingreso | currency:'COP':'symbol':'1.0-0'}}
+          <ion-note>{{movimiento.fecha.toDate() | date: 'medium'}}</ion-note>
+        </ion-text>
+      </ion-item>
+
+      <ion-item>
+        <ion-text>
+          Fin {{movimiento.total | currency:'COP':'symbol':'1.0-0'}}
+          <ion-note>{{movimiento.actualizacion.toDate() | date: 'medium'}}</ion-note>
+        </ion-text>
+      </ion-item>
+
+      <ion-item>
+        <ion-list>
+          <ion-text>
+            Movimientos: {{movimiento.movimientos}}
+          </ion-text>
+
+          <div *ngFor="let item of movimientos">
+            <ion-item *ngIf="item.grupo === 'Venta'">
+              <ion-text color="success">Ventas: {{item.items.length}}</ion-text>
+            </ion-item>
+
+            <ion-item *ngIf="item.grupo === 'Retiro'">
+              <ion-text color="danger">Retiros: {{item.items.length}}</ion-text>
+            </ion-item>
+          </div>
+        </ion-list>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ion-footer>
+  <form>
+    <ion-toolbar>
+      <ion-item>
+        Total en caja {{caja.total | currency:'COP':'symbol':'1.0-0' }}
+      </ion-item>
+
+      <ion-item>
+        <ion-label *ngIf="opcion === 'Cierre'">Cierre con</ion-label>
+        <ion-label *ngIf="opcion === 'Retiro'">Retirar</ion-label>
+        <ion-label *ngIf="opcion === 'Apertura' || opcion === 'Inicio'">Abre con</ion-label>
+        <input required inputmode="numeric" type="text" [value]="entrada.value | udpCurrency" [formControl]="entrada"
+          placeholder="$ 0">
+      </ion-item>
+
+      <ion-item color="danger" *ngIf="entrada.errors && entrada.touched">
+        <p *ngIf="entrada.errors.max">El valor no puede ser mayor que {{caja.total | currency:'COP':'symbol':'1.0-0'}}</p>
+        <p *ngIf="!entrada.errors.max">El valor de entrada no es válido</p>
+      </ion-item>
+    </ion-toolbar>
+
+    <ion-toolbar>
+      <ion-buttons slot="end">
+        <ion-button color="success" (click)="guardar()" [disabled]="entrada.invalid" *ngIf="opcion === 'Cierre'">
+          <ion-icon name="caret-forward-outline" slot="start"></ion-icon>
+          Cerrar
+        </ion-button>
+
+        <ion-button color="success" (click)="guardar()" [disabled]="entrada.invalid"
+          *ngIf="opcion === 'Inicio' || opcion === 'Apertura'">
+          <ion-icon name="caret-forward-outline" slot="start"></ion-icon>
+          Abrir
+        </ion-button>
+
+        <ion-button color="success" (click)="guardar()" [disabled]="entrada.invalid" *ngIf="opcion === 'Retiro'">
+          <ion-icon name="caret-forward-outline" slot="start"></ion-icon>
+          Retirar
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </form>
+</ion-footer>

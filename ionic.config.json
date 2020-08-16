@@ -1,7 +1,5 @@
 {
-  "name": "appcomidas",
-  "integrations": {
-    "cordova": {}
-  },
+  "name": "app_ventas",
+  "integrations": {},
   "type": "angular"
 }

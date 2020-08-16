@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
-import { AlertController, ModalController, NavController, MenuController } from '@ionic/angular';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { CajaService } from '../caja.service';
-import { FrontService } from '../front.service';
-import { EstadoCaja } from '../estado-caja.enum';
-import { CajaOptions } from '../caja-options';
-import { DetalleCajaComponent } from '../caja/detalle-caja/detalle-caja.component';
+import { CajaOptions } from '../interfaces/caja-options';
+import { AlertController, MenuController, ModalController, NavController, LoadingController } from '@ionic/angular';
+import { CajaService } from '../services/caja.service';
+import { FrontService } from '../services/front.service';
+import { EstadoCaja } from '../enums/estado-caja.enum';
+import { LoginService } from '../services/login.service';
+import { DetalleCajaComponent } from '../pages/cajas/detalle-caja/detalle-caja.component';
 import moment from 'moment';
 
 @Component({
@@ -16,14 +15,15 @@ import moment from 'moment';
 })
 export class HomePage {
 
-  public caja: CajaOptions;
+  caja: CajaOptions;
+  inicio = true;
 
   constructor(
     private alertController: AlertController,
-    private angularFireAuth: AngularFireAuth,
-    private angularFirestore: AngularFirestore,
     private cajaService: CajaService,
     private frontService: FrontService,
+    private loginService: LoginService,
+    private loadingController: LoadingController,
     private menuController: MenuController,
     private modalController: ModalController,
     private navController: NavController
@@ -37,25 +37,15 @@ export class HomePage {
     this.menuController.enable(true, 'home');
   }
 
-  public ir(pagina: string) {
-    this.caja = this.cajaService.caja;
+  ir(pagina: string) {
     if (pagina === 'venta/registro' && (!this.caja || this.caja.estado !== EstadoCaja.ABIERTA)) {
       this.frontService.presentAlert('Caja sin abrir', 'La caja no se encuentra abierta', 'Debes abrir la caja antes de registrar ventas.')
     } else if (pagina === 'caja' && !this.caja) {
       this.frontService.presentAlert('Caja', 'No tiene alguna caja registrada en el sistema', 'Registra una caja para poder realizar ventas.');
-      this.navController.navigateForward(`configuracion/${pagina}`);
+      this.navController.navigateForward(`configuracion/cajas`);
     } else {
       this.navController.navigateForward(`${pagina}`);
     }
-  }
-
-  private loadCaja() {
-    const cajaCollection = this.angularFirestore.collection<CajaOptions>('cajas');
-    return new Promise<CajaOptions[]>(resolve => {
-      cajaCollection.valueChanges().subscribe(cajas => {
-        resolve(cajas);
-      });
-    })
   }
 
   private async presentAlert(titulo: string, mensaje: string, caja: CajaOptions, opcion: string, subtitulo?: string, salir?: boolean) {
@@ -72,7 +62,7 @@ export class HomePage {
         text: 'No',
         handler: () => {
           if (salir) {
-            this.angularFireAuth.auth.signOut();
+            this.loginService.logout();
           }
         }
       }]
@@ -99,29 +89,39 @@ export class HomePage {
       const idfecha = moment(caja.fecha.toDate()).locale('es').format('LLLL');
       this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`, true);
     } else {
-      this.angularFireAuth.auth.signOut();
+      this.loginService.logout();
     }
   }
 
   private async validateCaja() {
-    const cajas = await this.loadCaja();
-    if (this.angularFireAuth.auth.currentUser && cajas.length === 1) {
-      const caja = cajas[0];
-      this.cajaService.updateCaja(caja.id);
-      const estadocaja = caja.estado;
-      if (!estadocaja) {
-        this.presentAlert('Sin caja', '¿Desea abrir caja?', caja, 'Inicio');
-      } else if (estadocaja === EstadoCaja.CERRADA || estadocaja === EstadoCaja.DESCUADRE) {
-        this.presentAlert('Inicio de caja', '¿Desea abrir caja?', caja, 'Apertura');
+    const loading = await this.loadingController.create({
+      message: 'Iniciando caja...',
+      duration: 20000
+    });
+
+    loading.present();
+
+    this.cajaService.cajas().subscribe(cajas => {
+      if (this.loginService.currentUser && cajas[0]) {
+        this.caja = cajas[0];
+        this.cajaService.caja = this.caja;
+        if (this.inicio && !this.caja.estado) {
+          this.presentAlert('Sin caja', '¿Desea abrir caja?', this.caja, 'Inicio');
+        } else if (this.inicio && (this.caja.estado === EstadoCaja.CERRADA || this.caja.estado === EstadoCaja.DESCUADRE)) {
+          this.presentAlert('Inicio de caja', '¿Desea abrir caja?', this.caja, 'Apertura');
+        } else if (this.inicio) {
+          const idfecha = moment(this.caja.fecha.toDate()).locale('es').format('LLLL');
+          this.presentAlert('Caja abierta', '¿Desea cerrar caja?', this.caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`);
+        }
+        this.inicio = false;
+      } else if (!cajas[0]) {
+        this.frontService.presentAlert('Caja', 'No tiene alguna caja registrada en el sistema', 'Registra una caja.');
       } else {
-        const idfecha = moment(caja.fecha.toDate()).locale('es').format('LLLL');
-        this.presentAlert('Caja abierta', '¿Desea cerrar caja?', caja, 'Cierre', `La caja de ${idfecha} se encuentra abierta.`);
+        this.validateCaja();
       }
-    } else {
-      const subscribe = this.angularFireAuth.authState.subscribe();
-      this.validateCaja();
-      subscribe.unsubscribe();
-    }
+
+      loading.dismiss();
+    });
   }
 
 }

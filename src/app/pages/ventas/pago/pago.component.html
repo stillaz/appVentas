@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Pedido No. {{venta.id}}
+    </ion-title>
+
+    <ion-text color="primary" slot="end">
+      <h3 style="margin: 5px; font-weight: 500;">Total compra: {{venta.total | currency:'COP':'symbol':'1.0-0'}}</h3>
+    </ion-text>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-list-header>
+      <ion-text>
+        <ion-title>
+          Pago
+        </ion-title>
+
+        <ion-title size="small" color="medium">
+          Seleccione el valor de pago.
+        </ion-title>
+      </ion-text>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-grid>
+        <ion-row class="ion-justify-content-center">
+          <ion-col *ngFor="let item of valores">
+            <ion-item lines="none">
+              <ion-button fill="outline" size="large" color="success" [disabled]="venta.total > item"
+                (click)="terminar(item)">
+                {{item | currency:'COP':'symbol':'1.0-0'}}
+              </ion-button>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="medium">Ingrese el valor de pago</ion-label>
+      <input required min="venta.total" inputmode="numeric" type="text" [value]="valor | udpCurrency"
+        [(ngModel)]="valor" placeholder="$ 0" (ngModelChange)="valorMinimo()">
+    </ion-item>
+
+    <ion-item color="danger" *ngIf="valor && !valido">
+      <p>El valor ingresado debe ser mayor o igual al valor total</p>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click)="cancelar()">
+        Cancelar
+      </ion-button>
+
+      <ion-button color="primary" [disabled]="!valido" (click)="terminar(valor)">
+        Continuar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
