@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, ModalController, NavController, ToastController, MenuController } from '@ionic/angular';
 import { VentaOptions } from 'src/app/interfaces/venta-options';
-import { CompraService } from 'src/app/services/compra.service';
 import { VentaService } from 'src/app/services/venta.service';
 import { PagoComponent } from '../pago/pago.component';
 import { DetalleClienteComponent } from '../detalle-cliente/detalle-cliente.component';
+import { PedidoService } from 'src/app/services/pedido.service';
 
 @Component({
   selector: 'app-registro-venta',
@@ -17,10 +17,10 @@ export class RegistroVentaComponent implements OnInit {
 
   constructor(
     private alertController: AlertController,
-    private compraService: CompraService,
     private menuController: MenuController,
     private modalController: ModalController,
     private navController: NavController,
+    private pedidoService: PedidoService,
     private toastController: ToastController,
     private ventaService: VentaService
   ) { }
@@ -28,8 +28,8 @@ export class RegistroVentaComponent implements OnInit {
   ngOnInit() {
     this.menuController.enable(false, 'home');
     this.menuController.enable(true, 'carrito');
-    this.compraService.nuevaVenta();
-    this.venta = this.compraService.venta;
+    this.pedidoService.nuevaVenta();
+    this.venta = this.pedidoService.venta;
   }
 
   async cancelar() {
@@ -52,6 +52,13 @@ export class RegistroVentaComponent implements OnInit {
   async domicilio() {
     const modal = await this.modalController.create({
       component: DetalleClienteComponent
+    });
+
+    modal.onDidDismiss().then(res => {
+      if (res.data) {
+        this.venta.domicilio = res.data.cliente;
+        this.pendiente();
+      }
     });
 
     modal.present();
@@ -106,7 +113,7 @@ export class RegistroVentaComponent implements OnInit {
       buttons: [{
         text: 'Si',
         handler: () => {
-          this.compraService.quitar(idproducto);
+          this.pedidoService.quitar(idproducto);
         }
       }, 'No']
     });

@@ -108,7 +108,7 @@ export class PagoComponent implements OnInit {
 
     loading.present();
 
-    this.venta.id = await this.ventaService.loadPedidoId();
+    this.venta.id = await this.ventaService.ventaId();
     loading.dismiss();
   }
 
@@ -204,7 +204,7 @@ export class PagoComponent implements OnInit {
     this.venta.pago = this.dataService.anumero(valor);
     this.venta.devuelta = this.venta.pago - this.venta.total;
     this.venta.recibido = this.venta.pago - this.venta.devuelta;
-    this.venta.turno = await this.ventaService.loadTurnoId();
+    this.venta.turno = await this.ventaService.turnoId();
     this.ventaService.finalizar(this.venta).then(() => {
       this.anular = false;
       this.presentAlertFinalizar();

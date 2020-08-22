@@ -11,9 +11,9 @@ import { ClienteService } from 'src/app/services/cliente.service';
 })
 export class DetalleClienteComponent implements OnInit {
 
-  public cliente = {} as UsuarioOptions;
-  public nuevo = true;
-  public todo: FormGroup;
+  cliente = {} as UsuarioOptions;
+  nuevo = true;
+  todo: FormGroup;
   private usuario: string;
 
   constructor(
@@ -45,12 +45,12 @@ export class DetalleClienteComponent implements OnInit {
   }
 
   private actualizarForm() {
+    this.todo.patchValue(
+      { nombre: this.cliente.nombre, email: this.cliente.email, telefono: this.cliente.telefono, direccion: this.cliente.direccion }
+    );
+
     const nombreForm = this.todo.get('nombre');
     const emailForm = this.todo.get('email');
-    const telefonoForm = this.todo.get('telefono');
-
-    nombreForm.setValue(this.cliente.nombre);
-    emailForm.setValue(this.cliente.email);
 
     if (this.usuario === 'usuario') {
       nombreForm.disable();
@@ -58,15 +58,14 @@ export class DetalleClienteComponent implements OnInit {
     } else {
       nombreForm.enable();
       emailForm.enable();
-      telefonoForm.setValue(this.todo.value.telefono);
     }
   }
 
-  public async cerrar() {
+  async cerrar() {
     this.modalController.dismiss();
   }
 
-  public guardar() {
+  guardar() {
     if (this.usuario === 'usuario' && this.todo.value.telefono !== this.cliente.telefono) {
       this.presentAlert('Actualizar información', `¿Está seguro acutalizar el número de teléfono de ${this.cliente.nombre}?`);
     } else if (this.usuario !== 'usuario') {
@@ -107,17 +106,17 @@ export class DetalleClienteComponent implements OnInit {
   private registrar() {
     const cliente = this.todo.value;
     this.clienteService.saveCliente(cliente).then(() => {
-      this.presentToast('Se ha guardado la información del usuario', '');
+      this.presentToast('Se ha registrado la información del usuario', '');
     }).catch(err => {
-      this.presentToast(`Error, no se pudo guardar la información del usuario. Error: ${err}`, 'danger');
+      this.presentAlert('Error al registrar el usuario', `No fue posible registrar la información del usuario. Error: ${err}`);
     });
 
     this.modalController.dismiss({
-      cliente: cliente
+      cliente
     });
   }
 
-  public updateCliente() {
+  updateCliente() {
     const telefono = this.todo.value.telefono;
     this.clienteService.clientesTelefono(telefono).subscribe(clientes => {
       const cliente = clientes[0];

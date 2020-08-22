@@ -8,16 +8,16 @@ import { EstadoVenta } from '../enums/estado-venta.enum';
 @Injectable({
   providedIn: 'root'
 })
-export class CompraService {
+export class PedidoService {
 
   private subject = new Subject<number>();
 
-  public venta: VentaOptions;
+  venta: VentaOptions;
 
   constructor() {
   }
 
-  public agregar(producto: ProductoOptions) {
+  agregar(producto: ProductoOptions) {
     const detalleFactura = this.venta.detalle;
     const item = detalleFactura.find((item: any) => {
       const productoItem = item.producto;
@@ -39,27 +39,20 @@ export class CompraService {
     this.updateCantidad(detalleFactura);
   }
 
-  public getCantidad() {
+  getCantidad() {
     return this.subject.asObservable();
   }
 
-  public nuevaVenta() {
+  nuevaVenta() {
     this.venta = {
-      caja: null,
-      detalle: [] as any,
-      devuelta: null,
-      id: null,
-      pago: null,
+      detalle: [],
       total: 0,
       recibido: 0,
       estado: EstadoVenta.PENDIENTE,
-      turno: null,
-      fecha: null,
-      usuario: null
-    };
+    } as VentaOptions;
   }
 
-  public quitar(idproducto: string) {
+  quitar(idproducto: string) {
     const detalleFactura = this.venta.detalle;
     const item = detalleFactura.find(item => item.producto.id === idproducto);
     const index = detalleFactura.indexOf(item);

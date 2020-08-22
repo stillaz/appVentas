@@ -11,6 +11,7 @@ import { PipesModule } from 'src/app/pipes/pipes.module';
 import { RegistroVentaComponent } from './registro-venta/registro-venta.component';
 import { PagoComponent } from './pago/pago.component';
 import { DetalleClienteComponent } from './detalle-cliente/detalle-cliente.component';
+import { DetalleVentaComponent } from './detalle-venta/detalle-venta.component';
 
 @NgModule({
   imports: [
@@ -21,6 +22,6 @@ import { DetalleClienteComponent } from './detalle-cliente/detalle-cliente.compo
     ReactiveFormsModule,
     VentasPageRoutingModule,
   ],
-  declarations: [VentasPage, DetalleClienteComponent, PagoComponent, RegistroVentaComponent]
+  declarations: [VentasPage, DetalleClienteComponent, DetalleVentaComponent, PagoComponent, RegistroVentaComponent]
 })
 export class VentasPageModule {}

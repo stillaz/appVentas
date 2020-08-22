@@ -3,12 +3,12 @@ import { VentaOptions } from 'src/app/interfaces/venta-options';
 import { GrupoOptions } from 'src/app/interfaces/grupo-options';
 import { ProductoOptions } from 'src/app/interfaces/producto-options';
 import { ActionSheetController, ModalController } from '@ionic/angular';
-import { CompraService } from 'src/app/services/compra.service';
 import { FrontService } from 'src/app/services/front.service';
 import { GrupoService } from 'src/app/services/grupo.service';
 import { Router } from '@angular/router';
 import { ProductoService } from 'src/app/services/producto.service';
 import { DetalleProductoComponent } from './detalle-producto/detalle-producto.component';
+import { PedidoService } from 'src/app/services/pedido.service';
 
 @Component({
   selector: 'app-productos',
@@ -39,10 +39,10 @@ export class ProductosPage implements OnInit {
 
   constructor(
     private actionSheetController: ActionSheetController,
-    private compraService: CompraService,
     private fronService: FrontService,
     private grupoService: GrupoService,
     private modalController: ModalController,
+    private pedidoService: PedidoService,
     private productoService: ProductoService,
     private router: Router
   ) { }
@@ -53,8 +53,8 @@ export class ProductosPage implements OnInit {
     this.marcaseleccion = 'Todas las marcas';
     this.updateGrupos();
     this.updateProductosGrupo();
-    this.carrito = this.compraService.venta;
-    this.compraService.getCantidad().subscribe(cantidad => {
+    this.carrito = this.pedidoService.venta;
+    this.pedidoService.getCantidad().subscribe(cantidad => {
       this.cantidad = cantidad;
     });
   }
@@ -70,10 +70,10 @@ export class ProductosPage implements OnInit {
       } else {
         const combos = producto.combos;
         if (!combos || !combos[0]) {
-          this.compraService.agregar(producto);
+          this.pedidoService.agregar(producto);
         } else if (combos && combos.length === 1) {
           producto.combos[0].activo = true;
-          this.compraService.agregar(producto);
+          this.pedidoService.agregar(producto);
         } else if (combos) {
           producto.combos.forEach(combo => combo.activo = false);
           await this.presentCombos(producto);
@@ -90,7 +90,7 @@ export class ProductosPage implements OnInit {
         handler: () => {
           if (combo.cantidad && Number(combo.cantidad) > 0) {
             combo.activo = true;
-            this.compraService.agregar(producto);
+            this.pedidoService.agregar(producto);
           } else {
             this.fronService.presentAlert('Error al ingresar producto', 'El producto seleccionado no tiene unidades disponible')
           }

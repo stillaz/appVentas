@@ -38,7 +38,8 @@ const routes: Routes = [
 
   {
     path: 'ventas',
-    loadChildren: () => import('./pages/ventas/ventas.module').then(m => m.VentasPageModule)
+    loadChildren: () => import('./pages/ventas/ventas.module').then(m => m.VentasPageModule),
+    canActivate: [AuthGuardService]
   }, {
     path: '',
     redirectTo: 'home',

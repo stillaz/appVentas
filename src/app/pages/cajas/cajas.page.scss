@@ -1,9 +1,10 @@
 $categories: (
     apertura: #3bc7c4,
     cierre: #fd8b2d,
-    retiro: #fe4c52,
-    inicio: #69bb7b,
     descuadre: #222,
+    inicio: #3bc7c4,
+    retiro: #fe4c52,
+    venta: #69bb7b
 );
 
 @function auxiliary-categories() {

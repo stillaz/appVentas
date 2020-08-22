@@ -11,13 +11,24 @@
 
 <ion-content>
   <ion-grid style="height: 100%; width: 100%;">
-    <ion-row class="ion-align-items-center ion-justify-content-center" style="height: 100%;">
+    <ion-row class="ion-align-items-center ion-justify-content-center" style="height: 100%; width: 100%;">
       <ion-col size-md="3" size-sm="4">
         <div class="button-rounded-background" style="background-color: #155ee6;" (click)="ir('ventas/registro')">
           <div class="button-rounded">
             <ion-icon name="cart"></ion-icon>
             <ion-text>
               Nueva venta
+            </ion-text>
+          </div>
+        </div>
+      </ion-col>
+
+      <ion-col size-md="3" size-sm="4">
+        <div class="button-rounded-background" style="background-color: #f7ca18;" (click)="ir('ventas')">
+          <div class="button-rounded">
+            <ion-icon name="clipboard-outline"></ion-icon>
+            <ion-text>
+              Pedidos
             </ion-text>
           </div>
         </div>

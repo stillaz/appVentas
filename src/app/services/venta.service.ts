@@ -22,6 +22,13 @@ export class VentaService {
     private loginService: LoginService
   ) { }
 
+  actualizar(venta: VentaOptions, estado: string) {
+    const actualizacion = new Date();
+    const idDia = moment(venta.fecha.toDate()).startOf('day').toDate().getTime().toString();
+    const ventaDiaDocument = this.angularFirestore.doc(`ventas/${idDia}/ventas/${venta.id}`).ref;
+    return ventaDiaDocument.update({ actualizacion, estado });
+  }
+
   anular(venta: VentaOptions) {
     const fecha = new Date();
     const idfecha = moment(fecha).startOf('day').toDate().getTime().toString();
@@ -34,9 +41,11 @@ export class VentaService {
 
   finalizar(venta: VentaOptions) {
     venta.usuario = this.loginService.usuario;
-    venta.fecha = new Date();
+    const fecha = new Date();
+    venta.fecha = venta.fecha ? venta.fecha.toDate() : fecha;
+    venta.actualizacion = fecha;
     const pendiente = venta.estado === EstadoVenta.ENTREGADO;
-    const fechaVenta = pendiente ? venta.fecha.toDate() : venta.fecha;
+    const fechaVenta = pendiente ? venta.fecha.toDate() : fecha;
     const recibido: number = venta.recibido;
     const idfecha = moment(fechaVenta).startOf('day').toDate().getTime().toString();
     const ventaDiaDocument = this.angularFirestore.doc(`ventas/${idfecha}`).ref;
@@ -45,7 +54,6 @@ export class VentaService {
       const ventaDocument = ventaDiaDocument.collection('ventas').doc(venta.id.toString());
       const diario = (await transaction.get(ventaDiaDocument));
 
-      venta.fecha = venta.fecha;
       venta.estado = EstadoVenta.FINALIZADO;
       await this.registrarReporte(transaction, venta.fecha, venta);
 
@@ -59,31 +67,32 @@ export class VentaService {
         transaction.update(ventaDiaDocument, {
           total: total,
           cantidad: cantidad,
-          fecha: venta.fecha,
+          fecha: fecha,
           pendiente: pendiente
         });
       } else {
         transaction.set(ventaDiaDocument, {
           total: recibido,
           cantidad: 1,
-          fecha: venta.fecha,
+          fecha: fecha,
           id: idfecha,
           pendiente: 0
         });
       }
 
       transaction.set(ventaDocument, venta);
-      await this.inventarioService.actualizarInventario(venta.detalle, EstadoInventario.VENTA_PRODUCTO, -1);
+      //await this.inventarioService.actualizarInventario(venta.detalle, EstadoInventario.VENTA_PRODUCTO, -1);
     });
   }
 
   async pendiente(venta: VentaOptions) {
     venta.fecha = new Date();
+    venta.actualizacion = venta.fecha;
     venta.usuario = this.loginService.usuario;
-    venta.id = await this.loadPedidoId();
-    venta.turno = await this.loadTurnoId();
+    venta.id = await this.ventaId();
+    venta.turno = await this.turnoId();
     venta.estado = EstadoVenta.PENDIENTE;
-    
+
     const fechaDia = moment(venta.fecha).startOf('day').toDate().getTime().toString();
     const ventaDiaDocument = this.angularFirestore.doc<any>(`ventas/${fechaDia}`).ref;
     const ventaDocument = ventaDiaDocument.collection('ventas').doc(venta.id.toString());
@@ -108,7 +117,9 @@ export class VentaService {
         transaction.set(ventaDiaDocument, {
           cantidad: 1,
           fecha: venta.fecha,
-          pendiente: 1
+          id: fechaDia,
+          pendiente: 1,
+          total: 0
         });
       }
 
@@ -199,7 +210,7 @@ export class VentaService {
     return transaction;
   }
 
-  loadTurnoId() {
+  turnoId() {
     const actualizacion = new Date();
     const turnoDocument = this.angularFirestore.doc<any>('configuracion/turno').ref;
     return this.angularFirestore.firestore.runTransaction(async transaction => {
@@ -218,7 +229,12 @@ export class VentaService {
     });
   }
 
-  loadPedidoId() {
+  venta(iddia: string, idventa: string) {
+    const ventaDoc = this.angularFirestore.doc<VentaOptions>(`ventas/${iddia}/ventas/${idventa}`);
+    return ventaDoc.valueChanges();
+  }
+
+  ventaId() {
     const actualizacion = new Date();
     const ventaDocument = this.angularFirestore.doc<any>('configuracion/venta').ref;
     return this.angularFirestore.firestore.runTransaction(async transaction => {
@@ -234,5 +250,37 @@ export class VentaService {
 
       return pedido;
     });
+  }
+
+  ventas(estado?: string) {
+    const ventaCollection = this.angularFirestore.collection<any>('ventas', ref => {
+      if (estado === EstadoVenta.PENDIENTE) {
+        return ref.where('pendiente', '>', 0);
+      }
+      return ref;
+    });
+
+    return ventaCollection.valueChanges();
+  }
+
+  async ventasDia(dia: number, estado?: string) {
+    const ventaCollection = this.angularFirestore.collection<VentaOptions>(`ventas/${dia}/ventas`, ref => {
+      if (estado) {
+        return ref.where('estado', '==', estado);
+      }
+
+      return ref;
+    });
+    const ventas = await ventaCollection.ref.where('estado', '==', estado).get();
+    return ventas.docs.map(doc => doc.data() as VentaOptions);
+  }
+
+  ventasDiaStream(dia: number, estado?: string) {
+    const ventaCollection = this.angularFirestore.collection<VentaOptions>(`ventas/${dia}/ventas`, ref => {
+      if (estado) {
+        return ref.where('estado', '==', estado);
+      }
+    });
+    return ventaCollection.valueChanges();
   }
 }

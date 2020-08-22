@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { ModalController, LoadingController, ToastController } from '@ionic/angular';
 import { VentaOptions } from 'src/app/interfaces/venta-options';
+import { VentaService } from 'src/app/services/venta.service';
+import { EstadoVenta } from 'src/app/enums/estado-venta.enum';
+import { PagoComponent } from '../pago/pago.component';
 
 @Component({
   selector: 'app-detalle-venta',
@@ -10,27 +12,58 @@ import { VentaOptions } from 'src/app/interfaces/venta-options';
 })
 export class DetalleVentaComponent implements OnInit {
 
-  public idventa: string;
-  public fecha: string;
-  public venta: VentaOptions;
+  idventa: string;
+  fecha: string;
+  venta: VentaOptions;
 
   constructor(
-    private angularFirestore: AngularFirestore,
-    private modalController: ModalController
+    private loadingController: LoadingController,
+    private modalController: ModalController,
+    private toastController: ToastController,
+    private ventaService: VentaService
   ) { }
 
   ngOnInit() {
     this.updateVenta();
   }
 
-  updateVenta() {
-    const ventaDoc = this.angularFirestore.doc<VentaOptions>(`ventas/${this.fecha}/ventas/${this.idventa}`);
-    ventaDoc.valueChanges().subscribe(venta => {
-      this.venta = venta;
+  async actualizar(estado: string) {
+    const loading = await this.loadingController.create({
+      message: 'Actualizando pedido...'
     });
+
+    loading.present();
+    this.ventaService.actualizar(this.venta, estado).then(() => {
+      this.presentToast(`El pedido ${this.venta.id} ha sido actualizado a ${estado}`);
+      this.modalController.dismiss();
+    }).finally(() => loading.dismiss());
   }
 
-  public salir() {
+  async finalizar() {
+    const modal = await this.modalController.create({
+      component: PagoComponent,
+      componentProps: {
+        venta: this.venta
+      }
+    });
+
+    modal.present();
+  }
+  private async presentToast(message: string) {
+    const toast = await this.toastController.create({
+      message
+    });
+
+    toast.present();
+  }
+
+  salir() {
     this.modalController.dismiss();
+  }
+
+  private updateVenta() {
+    this.ventaService.venta(this.fecha, this.idventa).subscribe(venta => {
+      this.venta = venta;
+    });
   }
 }
