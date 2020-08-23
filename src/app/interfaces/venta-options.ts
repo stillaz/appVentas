@@ -15,4 +15,5 @@ export interface VentaOptions {
     total: number
     turno: number
     usuario: UsuarioOptions
+    valordomicilio?: number
 }

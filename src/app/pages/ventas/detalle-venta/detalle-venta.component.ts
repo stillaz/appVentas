@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController, LoadingController, ToastController } from '@ionic/angular';
 import { VentaOptions } from 'src/app/interfaces/venta-options';
 import { VentaService } from 'src/app/services/venta.service';
-import { EstadoVenta } from 'src/app/enums/estado-venta.enum';
 import { PagoComponent } from '../pago/pago.component';
 
 @Component({
@@ -12,8 +11,9 @@ import { PagoComponent } from '../pago/pago.component';
 })
 export class DetalleVentaComponent implements OnInit {
 
-  idventa: string;
   fecha: string;
+  idventa: string;
+  modal: HTMLIonModalElement;
   venta: VentaOptions;
 
   constructor(
@@ -23,7 +23,8 @@ export class DetalleVentaComponent implements OnInit {
     private ventaService: VentaService
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.modal = await this.modalController.getTop();
     this.updateVenta();
   }
 
@@ -40,18 +41,41 @@ export class DetalleVentaComponent implements OnInit {
   }
 
   async finalizar() {
+    if (!this.venta.recibido) {
+      this.presentPago();
+    } else {
+      const loading = await this.loadingController.create({
+        message: 'Procesando venta...'
+      });
+
+      loading.present();
+
+      this.ventaService.finalizar(this.venta).then(() => {
+        this.presentToast(`El pedido ${this.venta.id} ha finalizado`);
+        this.modalController.dismiss();
+      }).finally(() => loading.dismiss());
+    }
+  }
+
+  private async presentPago() {
     const modal = await this.modalController.create({
       component: PagoComponent,
       componentProps: {
-        venta: this.venta
+        venta: this.venta,
+        finalizar_venta: true
       }
     });
 
     modal.present();
+
+    await modal.onDidDismiss();
+    this.modal.dismiss();
   }
+
   private async presentToast(message: string) {
     const toast = await this.toastController.create({
-      message
+      message,
+      duration: 3000
     });
 
     toast.present();

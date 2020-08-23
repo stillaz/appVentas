@@ -37,15 +37,20 @@
 
     <ion-item *ngIf="venta.domicilio">
       <ion-text>
-        <ion-title>
+        <h3>
           Domicilio
-        </ion-title>
-        <br>
-        <ion-title size="small">
+        </h3>
+        <h4>
           {{venta.domicilio.nombre}}
-        </ion-title>
+        </h4>
         <ion-label>Dirección: {{venta.domicilio.direccion}}</ion-label>
         <ion-label>Teléfono: {{venta.domicilio.telefono}}</ion-label>
+      </ion-text>
+    </ion-item>
+
+    <ion-item *ngIf="venta.domicilio">
+      <ion-text>
+        Domicilio: {{venta.valordomicilio | currency:'COP':'symbol':'1.0-0'}}
       </ion-text>
     </ion-item>
 
@@ -66,23 +71,7 @@
 <ion-footer *ngIf="venta">
   <ion-toolbar>
     <ion-buttons slot="end">
-      <ion-button color="primary" (click)="actualizar('Preparado')" *ngIf="venta.estado == 'Pendiente'">
-        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-        Preparado
-      </ion-button>
-
-      <ion-button color="primary" (click)="actualizar('Enviado')" *ngIf="venta.estado == 'Preparado' && venta.domicilio">
-        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-        Enviado
-      </ion-button>
-
-      <ion-button color="primary" (click)="actualizar('Pendiente pago')" *ngIf="venta.estado == 'Preparado' && !venta.domicilio">
-        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-        Pendiente pago
-      </ion-button>
-
-      <ion-button color="success" (click)="finalizar()"
-        *ngIf="venta.estado == 'Enviado' || venta.estado == 'Pendiente pago'">
+      <ion-button color="success" (click)="finalizar()" *ngIf="venta.estado == 'Pendiente'">
         <ion-icon name="checkmark-done-circle-outline" slot="start"></ion-icon>
         Finalizado
       </ion-button>

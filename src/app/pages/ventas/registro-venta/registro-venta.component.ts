@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, ModalController, NavController, ToastController, MenuController } from '@ionic/angular';
+import { AlertController, ModalController, NavController, ToastController, MenuController, ActionSheetController, LoadingController } from '@ionic/angular';
 import { VentaOptions } from 'src/app/interfaces/venta-options';
 import { VentaService } from 'src/app/services/venta.service';
-import { PagoComponent } from '../pago/pago.component';
 import { DetalleClienteComponent } from '../detalle-cliente/detalle-cliente.component';
 import { PedidoService } from 'src/app/services/pedido.service';
+import { PagoComponent } from '../pago/pago.component';
 
 @Component({
   selector: 'app-registro-venta',
@@ -16,7 +16,9 @@ export class RegistroVentaComponent implements OnInit {
   venta: VentaOptions;
 
   constructor(
+    private actionSheetController: ActionSheetController,
     private alertController: AlertController,
+    private loadingController: LoadingController,
     private menuController: MenuController,
     private modalController: ModalController,
     private navController: NavController,
@@ -35,7 +37,7 @@ export class RegistroVentaComponent implements OnInit {
   async cancelar() {
     const alert = await this.alertController.create({
       header: 'Cancelar venta',
-      subHeader: `¿Desea cancelar la venta?`,
+      message: `¿Desea cancelar la venta?`,
       buttons: [{
         text: 'Si',
         handler: () => {
@@ -49,7 +51,7 @@ export class RegistroVentaComponent implements OnInit {
     await alert.present();
   }
 
-  async domicilio() {
+  private async domicilio() {
     const modal = await this.modalController.create({
       component: DetalleClienteComponent
     });
@@ -57,6 +59,48 @@ export class RegistroVentaComponent implements OnInit {
     modal.onDidDismiss().then(res => {
       if (res.data) {
         this.venta.domicilio = res.data.cliente;
+        this.domicilioCosto();
+      }
+    });
+
+    modal.present();
+  }
+
+  private async domicilioCosto() {
+    const alert = await this.alertController.create({
+      header: 'Valor de domicilio',
+      message: 'Ingrese el valor del domicilio',
+      inputs: [{
+        min: 0,
+        max: 99999,
+        name: 'domicilio',
+        type: 'number',
+        value: 0
+      }],
+      buttons: [{
+        text: 'Aceptar',
+        handler: (data) => {
+          this.venta.valordomicilio = Number(data.domicilio);
+          this.venta.total = this.venta.total + this.venta.valordomicilio;
+          this.pago();
+        }
+      }]
+    });
+
+    alert.present();
+  }
+
+  private async pago() {
+    const modal = await this.modalController.create({
+      component: PagoComponent,
+      componentProps: {
+        venta: this.venta
+      }
+    });
+
+    modal.onDidDismiss().then(res => {
+      if (res.data) {
+        this.venta = res.data;
         this.pendiente();
       }
     });
@@ -64,12 +108,18 @@ export class RegistroVentaComponent implements OnInit {
     modal.present();
   }
 
-  pendiente() {
-    this.ventaService.pendiente(this.venta).then(() => {
+  private async pendiente() {
+    const loading = await this.loadingController.create({
+      message: 'Registrando venta...'
+    });
+
+    loading.present();
+
+    this.ventaService.pendiente(this.venta).then(async () => {
       this.presentAlertFinalizar();
     }).catch(err => {
       this.presentAlertError(err, 'registrar');
-    });
+    }).finally(() => loading.dismiss());
   }
 
   private async presentAlertError(err: any, tipo: string) {
@@ -121,16 +171,25 @@ export class RegistroVentaComponent implements OnInit {
     await alert.present();
   }
 
-  async terminar() {
-    const modal = await this.modalController.create({
-      component: PagoComponent,
-      componentProps: {
-        venta: this.venta
-      }
+  async registrar() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Selecciona servicio',
+      buttons: [{
+        icon: 'send-outline',
+        text: 'Entrega a domicilio',
+        handler: () => {
+          this.domicilio();
+        }
+      }, {
+        icon: 'pin-outline',
+        text: 'Entrega en sitio',
+        handler: () => {
+          this.pendiente();
+        }
+      }]
     });
 
-    modal.present();
+    await actionSheet.present();
   }
-
 
 }

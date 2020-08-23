@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 export class PagoComponent implements OnInit {
 
   anular = true;
+  finalizar_venta: boolean;
   valido: boolean;
   valor: any;
   valores = [5000, 10000, 20000, 50000, 100000];
@@ -31,7 +32,6 @@ export class PagoComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    this.loadPedidoId();
     const modal = await this.modalController.getTop();
     modal.onDidDismiss().then(() => {
       if (this.anular) {
@@ -55,6 +55,24 @@ export class PagoComponent implements OnInit {
     });
 
     alert.present();
+  }
+
+  private async finalizar() {
+    const loading = await this.loadingController.create({
+      message: 'Procesando venta...',
+      duration: 20000
+    });
+
+    loading.present();
+
+    this.ventaService.finalizar(this.venta).then(() => {
+      this.anular = false;
+      this.presentAlertFinalizar();
+    }).catch(err => {
+      this.presentAlertError(err, 'registrar');
+    }).finally(() => {
+      loading.dismiss();
+    });
   }
 
   /*private factura() {
@@ -100,16 +118,33 @@ export class PagoComponent implements OnInit {
     return documento;
   }*/
 
-  private async loadPedidoId() {
-    const loading = await this.loadingController.create({
-      message: 'Cargando datos de la venta...',
-      duration: 20000
-    });
+  private imprimir() {
+    /*const documento = this.factura();
+    if (this.platform.is('cordova')) {
+      this.printer.isAvailable().then(() => {
+        const options: PrintOptions = {
+          name: 'venta' + this.venta.id,
+          printerId: 'printer007',
+          duplex: true,
+          landscape: true,
+          grayscale: true
+        };
 
-    loading.present();
-
-    this.venta.id = await this.ventaService.ventaId();
-    loading.dismiss();
+        this.printer.print(documento, options).then(() => {
+          this.presentToast('Se ha registrado la venta');
+        }).catch(err => { return err });
+      }).catch(err => this.presentAlertError(err, 'imprimir'));
+    } else {
+      const configuracion = {
+        documentTitle: '',
+        header: '',
+        printable: this.factura(),
+        type: 'raw-html'
+      } as Configuration;
+      printJS(configuracion);*/
+    this.modalController.dismiss();
+    this.presentToast('Se ha registrado la venta');
+    //}
   }
 
   private async presentAnulado() {
@@ -164,55 +199,16 @@ export class PagoComponent implements OnInit {
     this.navController.navigateBack('');
   }
 
-  private imprimir() {
-    /*const documento = this.factura();
-    if (this.platform.is('cordova')) {
-      this.printer.isAvailable().then(() => {
-        const options: PrintOptions = {
-          name: 'venta' + this.venta.id,
-          printerId: 'printer007',
-          duplex: true,
-          landscape: true,
-          grayscale: true
-        };
-
-        this.printer.print(documento, options).then(() => {
-          this.presentToast('Se ha registrado la venta');
-        }).catch(err => { return err });
-      }).catch(err => this.presentAlertError(err, 'imprimir'));
-    } else {
-      const configuracion = {
-        documentTitle: '',
-        header: '',
-        printable: this.factura(),
-        type: 'raw-html'
-      } as Configuration;
-      printJS(configuracion);*/
-    this.modalController.dismiss();
-    this.presentToast('Se ha registrado la venta');
-    //}
-  }
-
-  async terminar(valor: any) {
-    const loading = await this.loadingController.create({
-      message: 'Procesando venta...',
-      duration: 20000
-    });
-
-    loading.present();
-
+  async procesar(valor: any) {
     this.venta.pago = this.dataService.anumero(valor);
     this.venta.devuelta = this.venta.pago - this.venta.total;
     this.venta.recibido = this.venta.pago - this.venta.devuelta;
-    this.venta.turno = await this.ventaService.turnoId();
-    this.ventaService.finalizar(this.venta).then(() => {
+    if (this.finalizar_venta) {
+      this.finalizar();
+    } else {
       this.anular = false;
-      this.presentAlertFinalizar();
-    }).catch(err => {
-      this.presentAlertError(err, 'registrar');
-    }).finally(() => {
-      loading.dismiss();
-    });
+      this.modalController.dismiss(this.venta);
+    }
   }
 
   valorMinimo() {

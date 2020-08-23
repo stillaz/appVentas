@@ -40,13 +40,9 @@ export class VentaService {
   }
 
   finalizar(venta: VentaOptions) {
+    const fechaVenta = venta.fecha.toDate();
     venta.usuario = this.loginService.usuario;
-    const fecha = new Date();
-    venta.fecha = venta.fecha ? venta.fecha.toDate() : fecha;
-    venta.actualizacion = fecha;
-    const pendiente = venta.estado === EstadoVenta.ENTREGADO;
-    const fechaVenta = pendiente ? venta.fecha.toDate() : fecha;
-    const recibido: number = venta.recibido;
+    venta.actualizacion = new Date();
     const idfecha = moment(fechaVenta).startOf('day').toDate().getTime().toString();
     const ventaDiaDocument = this.angularFirestore.doc(`ventas/${idfecha}`).ref;
 
@@ -55,28 +51,17 @@ export class VentaService {
       const diario = (await transaction.get(ventaDiaDocument));
 
       venta.estado = EstadoVenta.FINALIZADO;
-      await this.registrarReporte(transaction, venta.fecha, venta);
+      await this.registrarReporte(transaction, fechaVenta, venta);
 
       if (diario.exists) {
         const totalActual = diario.get('total');
-        const total = Number(totalActual) + recibido;
-        const cantidadActual = diario.get('cantidad');
-        const cantidad = Number(cantidadActual) + 1;
+        const total = Number(totalActual) + venta.recibido;
         const pendienteActual = diario.get('pendiente');
-        const pendiente = venta.estado === EstadoVenta.ENTREGADO ? Number(pendienteActual) - 1 : pendienteActual;
+        const pendiente = Number(pendienteActual) - 1;
         transaction.update(ventaDiaDocument, {
-          total: total,
-          cantidad: cantidad,
-          fecha: fecha,
+          total,
+          fecha: venta.actualizacion,
           pendiente: pendiente
-        });
-      } else {
-        transaction.set(ventaDiaDocument, {
-          total: recibido,
-          cantidad: 1,
-          fecha: fecha,
-          id: idfecha,
-          pendiente: 0
         });
       }
 

@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
 export class VentasPage implements OnInit {
 
   estado = EstadoVenta.PENDIENTE;
-  pedidos = {} as any;
+  pedidos: any;
   subscribe: Subscription;
 
   constructor(private modalController: ModalController, private ventaService: VentaService) { }
@@ -26,15 +26,17 @@ export class VentasPage implements OnInit {
 
   private updatePedidos() {
     this.subscribe = this.ventaService.ventas(this.estado).subscribe(ventas => {
-      const cantidad = ventas.map(venta => venta.pendiente).reduce((a, b) => a + b);
-      this.pedidos = { cantidad, items: [] };
-      ventas.forEach(async (venta, index) => {
-        const ventasDia = await this.ventaService.ventasDia(venta.id, this.estado);
-        this.pedidos.items.push.apply(this.pedidos.items, ventasDia);
-        if (index === ventas.length - 1) {
-          this.pedidos.items.sort((a: VentaOptions, b: VentaOptions) => a.actualizacion < b.actualizacion ? -1 : 1);
-        }
-      });
+      if (ventas[0]) {
+        const cantidad = ventas.map(venta => venta.pendiente).reduce((a, b) => a + b);
+        this.pedidos = { cantidad, items: [] };
+        ventas.forEach(async (venta, index) => {
+          const ventasDia = await this.ventaService.ventasDia(venta.id, this.estado);
+          this.pedidos.items.push.apply(this.pedidos.items, ventasDia);
+          if (index === ventas.length - 1) {
+            this.pedidos.items.sort((a: VentaOptions, b: VentaOptions) => a.actualizacion < b.actualizacion ? -1 : 1);
+          }
+        });
+      }
     });
   }
 

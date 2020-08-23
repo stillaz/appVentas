@@ -1,7 +1,11 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>
+    <ion-title *ngIf="venta.id">
       Pedido No. {{venta.id}}
+    </ion-title>
+
+    <ion-title *ngIf="!venta.id">
+      Pedido
     </ion-title>
 
     <ion-text color="primary" slot="end">
@@ -30,7 +34,7 @@
           <ion-col *ngFor="let item of valores">
             <ion-item lines="none">
               <ion-button fill="outline" size="large" color="success" [disabled]="venta.total > item"
-                (click)="terminar(item)">
+                (click)="procesar(item)">
                 {{item | currency:'COP':'symbol':'1.0-0'}}
               </ion-button>
             </ion-item>
@@ -58,7 +62,7 @@
         Cancelar
       </ion-button>
 
-      <ion-button color="primary" [disabled]="!valido" (click)="terminar(valor)">
+      <ion-button color="primary" [disabled]="!valido" (click)="procesar(valor)">
         Continuar
       </ion-button>
     </ion-buttons>

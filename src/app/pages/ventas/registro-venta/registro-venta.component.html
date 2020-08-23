@@ -43,19 +43,9 @@
         </h4>
       </ion-text>
 
-      <ion-button [disabled]="!venta.detalle[0]" expand="block" color="tertiary" (click)="domicilio()">
-        <ion-icon name="git-merge-outline" slot="start"></ion-icon>
-        Domicilio
-      </ion-button>
-
-      <ion-button [disabled]="!venta.detalle[0]" expand="block" color="warning" (click)="pendiente()">
-        <ion-icon name="timer-outline" slot="start"></ion-icon>
-        Pendiente
-      </ion-button>
-
-      <ion-button [disabled]="!venta.detalle[0]" expand="block" color="success" (click)="terminar()">
+      <ion-button [disabled]="!venta.detalle[0]" expand="block" color="success" (click)="registrar()">
         <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-        Finalizar
+        Registrar
       </ion-button>
 
       <ion-button expand="block" fill="outline" color="danger" (click)="cancelar()">

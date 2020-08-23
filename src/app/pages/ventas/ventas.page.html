@@ -1,35 +1,16 @@
 <ion-header>
   <ion-toolbar>
+    <ion-back-button slot="start"></ion-back-button>
     <ion-title>Pedidos</ion-title>
-  </ion-toolbar>
-
-  <ion-toolbar>
-    <ion-segment [(ngModel)]="estado" (ionChange)="updatePedidos()">
-      <ion-segment-button value="Pendiente">
-        Pendiente
-      </ion-segment-button>
-
-      <ion-segment-button value="Preparado">
-        Preparado
-      </ion-segment-button>
-
-      <ion-segment-button value="Enviado">
-        Enviado
-      </ion-segment-button>
-
-      <ion-segment-button value="Pendiente pago">
-        Pendiente de pago
-      </ion-segment-button>
-
-      <ion-segment-button value="Finalizado">
-        Finalizado
-      </ion-segment-button>
-    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
+  <ion-item color="warning" lines="none" *ngIf="pedidos && !pedidos.cantidad">
+    No hay pedidos pendientes
+  </ion-item>
+
+  <ion-list *ngIf="pedidos">
     <ion-item *ngFor="let pedido of pedidos.items">
       <ion-text>
         <ion-title size="small">Pedido {{pedido.id}}</ion-title>
