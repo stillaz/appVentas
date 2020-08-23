@@ -20,7 +20,7 @@ export class InventarioService {
   ) { }
 
   actualizarInventario(detalle: DetalleOptions[], estado: string, tipo: 1 | -1, idSinPreparar?: string) {
-    const productosDetalle = detalle.map(item => item.producto);
+    const productosDetalle = detalle.filter(item => item.producto.maneja_inventario).map(item => item.producto);
     const grupos = productosDetalle.map(producto => producto.grupo.id);
     const productoCollection = this.angularFirestore
       .collection<ProductoOptions>('productos', ref => ref.where('grupo.id', 'array-contains-any', grupos)).ref;
@@ -125,6 +125,7 @@ export class InventarioService {
       fechainventario: fecha,
       inventario: id,
     });
+    
     if (producto.combos) {
       transaction.update(productoDocument.ref, {
         combos: producto.combos

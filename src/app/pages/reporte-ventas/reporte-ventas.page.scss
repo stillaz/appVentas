@@ -1,0 +1,21 @@
+$categories: (
+    anulado: #222,
+    pendiente: #fe4c52,
+    finalizado: #69bb7b,
+);
+
+@function auxiliary-categories() {
+    @return map-remove($categories);
+}
+
+@each $track, $value in auxiliary-categories() {
+    ion-item[track="#{$track}"] {
+        border-left: 2px solid $value;
+
+        ion-text {
+            h4 {
+                color: $value;
+            }
+        }
+    }
+}

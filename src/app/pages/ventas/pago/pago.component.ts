@@ -3,7 +3,6 @@ import { VentaOptions } from 'src/app/interfaces/venta-options';
 import { AlertController, ModalController, NavController, ToastController, LoadingController } from '@ionic/angular';
 import { DataService } from 'src/app/services/data.service';
 import { VentaService } from 'src/app/services/venta.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pago',
@@ -12,7 +11,6 @@ import { Router } from '@angular/router';
 })
 export class PagoComponent implements OnInit {
 
-  anular = true;
   finalizar_venta: boolean;
   valido: boolean;
   valor: any;
@@ -25,36 +23,16 @@ export class PagoComponent implements OnInit {
     private loadingController: LoadingController,
     private modalController: ModalController,
     private navController: NavController,
-    private router: Router,
     //private printer: Printer,
     private toastController: ToastController,
     private ventaService: VentaService
   ) { }
 
   async ngOnInit() {
-    const modal = await this.modalController.getTop();
-    modal.onDidDismiss().then(() => {
-      if (this.anular) {
-        this.ventaService.anular(this.venta);
-      }
-    });
   }
 
   async cancelar() {
-    const alert = await this.alertController.create({
-      header: 'Cancelar pedido',
-      message: `¿Desea cancelar el pedido ${this.venta.id}?`,
-      buttons: [{
-        text: 'Si',
-        handler: async () => {
-          this.presentAnulado();
-          this.modalController.dismiss();
-          this.router.navigate(['ventas/registro']);
-        }
-      }, 'No']
-    });
-
-    alert.present();
+    this.modalController.dismiss();
   }
 
   private async finalizar() {
@@ -66,7 +44,6 @@ export class PagoComponent implements OnInit {
     loading.present();
 
     this.ventaService.finalizar(this.venta).then(() => {
-      this.anular = false;
       this.presentAlertFinalizar();
     }).catch(err => {
       this.presentAlertError(err, 'registrar');
@@ -147,16 +124,6 @@ export class PagoComponent implements OnInit {
     //}
   }
 
-  private async presentAnulado() {
-    const alert = await this.alertController.create({
-      header: `Pedido anulado`,
-      message: `El pedido N° ${this.venta.id} ha sido anulada.`,
-      buttons: ['Continuar']
-    });
-
-    alert.present();
-  }
-
   private async presentAlertError(err: any, tipo: string) {
     const alert = await this.alertController.create({
       header: 'Ha ocurrido un error',
@@ -206,7 +173,6 @@ export class PagoComponent implements OnInit {
     if (this.finalizar_venta) {
       this.finalizar();
     } else {
-      this.anular = false;
       this.modalController.dismiss(this.venta);
     }
   }

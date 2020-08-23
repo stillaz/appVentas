@@ -6,7 +6,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-item color="warning" lines="none" *ngIf="pedidos && !pedidos.cantidad">
+  <ion-item color="warning" lines="none" *ngIf="pedidos && pedidos.cantidad == 0">
     No hay pedidos pendientes
   </ion-item>
 

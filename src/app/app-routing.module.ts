@@ -30,13 +30,15 @@ const routes: Routes = [
     path: 'productos',
     loadChildren: () => import('./pages/productos/productos.module').then(m => m.ProductosPageModule),
     canActivate: [AuthGuardService]
-  },
-
-  //{ path: 'reporte/venta', loadChildren: () => import('./pages/reporte-venta/reporte-venta.module').then(m => m.ReporteVentaPageModule) },
-
-  //{ path: 'reporte/producto', loadChildren: () => import('./reporte-producto/reporte-producto.module').then(m => m.ReporteProductoPageModule) },
-
-  {
+  }, {
+    path: 'reporte/ventas',
+    loadChildren: () => import('./pages/reporte-ventas/reporte-ventas.module').then(m => m.ReporteVentasPageModule),
+    canActivate: [AuthGuardService]
+  }, {
+    path: 'reporte/productos',
+    loadChildren: () => import('./pages/reporte-productos/reporte-productos.module').then(m => m.ReporteProductosPageModule),
+    canActivate: [AuthGuardService]
+  }, {
     path: 'ventas',
     loadChildren: () => import('./pages/ventas/ventas.module').then(m => m.VentasPageModule),
     canActivate: [AuthGuardService]

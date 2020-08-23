@@ -22,6 +22,7 @@ import { DetalleVentaComponent } from './detalle-venta/detalle-venta.component';
     ReactiveFormsModule,
     VentasPageRoutingModule,
   ],
-  declarations: [VentasPage, DetalleClienteComponent, DetalleVentaComponent, PagoComponent, RegistroVentaComponent]
+  declarations: [VentasPage, DetalleClienteComponent, DetalleVentaComponent, PagoComponent, RegistroVentaComponent],
+  exports: [DetalleVentaComponent]
 })
 export class VentasPageModule {}

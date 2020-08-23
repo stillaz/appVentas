@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { InventarioPageRoutingModule } from './inventario-routing.module';
 
 import { InventarioPage } from './inventario.page';
+import { MenuInventarioComponent } from './menu-inventario/menu-inventario.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { InventarioPage } from './inventario.page';
     IonicModule,
     InventarioPageRoutingModule
   ],
-  declarations: [InventarioPage]
+  declarations: [InventarioPage, MenuInventarioComponent]
 })
 export class InventarioPageModule {}

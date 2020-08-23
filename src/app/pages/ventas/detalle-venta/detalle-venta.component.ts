@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, LoadingController, ToastController } from '@ionic/angular';
+import { ModalController, LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { VentaOptions } from 'src/app/interfaces/venta-options';
 import { VentaService } from 'src/app/services/venta.service';
 import { PagoComponent } from '../pago/pago.component';
@@ -17,6 +17,7 @@ export class DetalleVentaComponent implements OnInit {
   venta: VentaOptions;
 
   constructor(
+    private alertController: AlertController,
     private loadingController: LoadingController,
     private modalController: ModalController,
     private toastController: ToastController,
@@ -40,6 +41,34 @@ export class DetalleVentaComponent implements OnInit {
     }).finally(() => loading.dismiss());
   }
 
+  async anular() {
+    const loading = await this.loadingController.create({
+      message: 'Anulando pedido...'
+    });
+
+    loading.present();
+
+    this.ventaService.anular(this.venta).then(() => {
+      this.presentAnulado();
+      this.modalController.dismiss();
+    }).finally(() => loading.dismiss());
+  }
+
+  async cancelar() {
+    const alert = await this.alertController.create({
+      header: 'Cancelar pedido',
+      message: `¿Desea cancelar el pedido ${this.venta.id}?`,
+      buttons: [{
+        text: 'Si',
+        handler: () => {
+          this.anular();
+        }
+      }, 'No']
+    });
+
+    alert.present();
+  }
+
   async finalizar() {
     if (!this.venta.recibido) {
       this.presentPago();
@@ -55,6 +84,16 @@ export class DetalleVentaComponent implements OnInit {
         this.modalController.dismiss();
       }).finally(() => loading.dismiss());
     }
+  }
+
+  private async presentAnulado() {
+    const alert = await this.alertController.create({
+      header: `Pedido anulado`,
+      message: `El pedido N° ${this.venta.id} ha sido anulado.`,
+      buttons: ['Continuar']
+    });
+
+    alert.present();
   }
 
   private async presentPago() {

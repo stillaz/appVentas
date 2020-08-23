@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-back-button slot="start"></ion-back-button>
+
+    <ion-title>Reporte de ventas</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar class="ion-text-center">
+    <ion-select fill="clear" interface="action-sheet" [interfaceOptions]="customActionSheetOptions"
+      [(ngModel)]="mesSeleccionado" #C (ionChange)="seleccionarMes(C.value)">
+      <ion-select-option *ngFor="let fecha of fechas" [value]="fecha">{{fecha.texto}}</ion-select-option>
+    </ion-select>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="reporte">
+    <ion-list-header>
+      <ion-grid style="width: 100%">
+        <ion-row>
+          <ion-col>
+            <ion-item class="ion-text-center">
+              <ion-text color="medium" style="width: 100%;">
+                <p>Total ventas</p>
+                <h2 style="color: #32db64">{{ reporte.total | currency:'COP':'symbol':'1.0-0'}}</h2>
+              </ion-text>
+            </ion-item>
+          </ion-col>
+
+          <ion-col>
+            <ion-item class="ion-text-center">
+              <ion-text color="medium" style="width: 100%;">
+                <p>Cantidad ventas</p>
+                <h2 style="color: #0cd1e8">{{reporte.cantidad}}</h2>
+              </ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-list-header>
+
+    <ion-item-group *ngFor="let data of reporte.detalle">
+      <ion-item-divider color="medium" sticky>
+        <ion-label>
+          <strong>{{data.fecha}}</strong>
+        </ion-label>
+
+        <ion-text style="margin-right: 10px;" slot="end">
+          <h3>{{data.total | currency:'COP':'symbol':'1.0-0'}}</h3>
+        </ion-text>
+      </ion-item-divider>
+
+      <ion-item class="ion-margin" [attr.track]="venta.estado | lowercase" (click)="ver(venta.id, venta.fecha.toDate())"
+        *ngFor="let venta of data.ventas">
+        <ion-text color="primary">
+          <h4 class="ion-no-margin" style="font-size: 18px;">Venta #{{venta.id}}</h4>
+          <ion-note>{{venta.estado}}</ion-note>
+          <br>
+          <ion-note>{{venta.fecha.toDate() | date: 'shortTime'}}</ion-note>
+        </ion-text>
+
+        <ion-text color="danger" slot="end" *ngIf="venta.estado != 'Anulado'">
+          <h2 style="font-size: 16px; font-weight: bold;">{{venta.recibido | currency:'COP':'symbol':'1.0-0'}}</h2>
+        </ion-text>
+
+        <ion-text slot="end" *ngIf="venta.estado == 'Anulado'">
+          <h2 style="font-size: 16px; font-weight: bold;">0</h2>
+        </ion-text>
+      </ion-item>
+    </ion-item-group>
+  </ion-list>
+</ion-content>

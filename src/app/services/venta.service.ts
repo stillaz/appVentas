@@ -30,13 +30,29 @@ export class VentaService {
   }
 
   anular(venta: VentaOptions) {
-    const fecha = new Date();
-    const idfecha = moment(fecha).startOf('day').toDate().getTime().toString();
-    const ventaDiaDocument = this.angularFirestore.doc(`ventas/${idfecha}`).ref;
+    const actualizacion = new Date();
+    const iddia = moment(venta.fecha.toDate()).startOf('day').toDate().getTime().toString();
+    const ventaDiaDocument = this.angularFirestore.doc(`ventas/${iddia}`).ref;
     const ventaDocument = ventaDiaDocument.collection('ventas').doc(venta.id.toString());
-    venta.fecha = fecha;
-    venta.estado = EstadoVenta.ANULADO;
-    return ventaDocument.set(venta);
+
+    return this.angularFirestore.firestore.runTransaction(async transaction => {
+      const ventaDia = (await transaction.get(ventaDiaDocument));
+      const canceladoActual = ventaDia.get('cancelado');
+      const cancelado = Number(canceladoActual) + 1;
+      const cantidadActual = ventaDia.get('cantidad');
+      const cantidad = Number(cantidadActual) - 1;
+      const pendienteActual = ventaDia.get('pendiente');
+      const pendiente = Number(pendienteActual) - 1;
+
+      transaction.update(ventaDiaDocument, {
+        cancelado,
+        cantidad,
+        fecha: actualizacion,
+        pendiente
+      });
+
+      transaction.update(ventaDocument, { actualizacion, estado: EstadoVenta.ANULADO });
+    });
   }
 
   finalizar(venta: VentaOptions) {
@@ -101,6 +117,7 @@ export class VentaService {
       } else {
         transaction.set(ventaDiaDocument, {
           cantidad: 1,
+          cancelado: 0,
           fecha: venta.fecha,
           id: fechaDia,
           pendiente: 1,
@@ -249,14 +266,8 @@ export class VentaService {
   }
 
   async ventasDia(dia: number, estado?: string) {
-    const ventaCollection = this.angularFirestore.collection<VentaOptions>(`ventas/${dia}/ventas`, ref => {
-      if (estado) {
-        return ref.where('estado', '==', estado);
-      }
-
-      return ref;
-    });
-    const ventas = await ventaCollection.ref.where('estado', '==', estado).get();
+    const ventaCollection = this.angularFirestore.collection<VentaOptions>(`ventas/${dia}/ventas`);
+    const ventas = estado ? await ventaCollection.ref.where('estado', '==', estado).get() : await ventaCollection.ref.get();
     return ventas.docs.map(doc => doc.data() as VentaOptions);
   }
 

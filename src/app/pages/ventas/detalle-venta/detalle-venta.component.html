@@ -71,9 +71,14 @@
 <ion-footer *ngIf="venta">
   <ion-toolbar>
     <ion-buttons slot="end">
+      <ion-button color="danger" (click)="cancelar()" *ngIf="venta.estado == 'Pendiente'">
+        <ion-icon name="warning-outline" slot="start"></ion-icon>
+        Cancelar pedido
+      </ion-button>
+
       <ion-button color="success" (click)="finalizar()" *ngIf="venta.estado == 'Pendiente'">
         <ion-icon name="checkmark-done-circle-outline" slot="start"></ion-icon>
-        Finalizado
+        Finalizar
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

@@ -36,6 +36,8 @@ export class VentasPage implements OnInit {
             this.pedidos.items.sort((a: VentaOptions, b: VentaOptions) => a.actualizacion < b.actualizacion ? -1 : 1);
           }
         });
+      } else {
+        this.pedidos = { cantidad: 0, items: [] };
       }
     });
   }
