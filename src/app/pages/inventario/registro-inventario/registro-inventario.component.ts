@@ -17,14 +17,14 @@ import { ProductoService } from 'src/app/services/producto.service';
 })
 export class RegistroInventarioComponent implements OnInit {
 
-  public cantidad: FormControl;
-  public configuracionProducto: any;
-  public idproducto: string;
-  public inventario: InventarioOptions[];
-  public producto: ProductoOptions;
-  public sinPreparar: ProductoOptions;
-  public subProductos: ProductoOptions[];
-  public tipo: string;
+  cantidad: FormControl;
+  configuracionProducto: any;
+  idproducto: string;
+  inventario: InventarioOptions[];
+  producto: ProductoOptions;
+  sinPreparar: ProductoOptions;
+  subProductos: ProductoOptions[];
+  tipo: string;
 
   constructor(
     private alertController: AlertController,
@@ -43,11 +43,11 @@ export class RegistroInventarioComponent implements OnInit {
     }
   }
 
-  public cerrar() {
+  cerrar() {
     this.modalController.dismiss();
   }
 
-  public form() {
+  form() {
     this.updateProducto();
     if (!this.tipo) {
       this.cantidad = this.formBuilder
@@ -55,7 +55,7 @@ export class RegistroInventarioComponent implements OnInit {
     }
   }
 
-  public async guardar() {
+  async guardar() {
     const loading = await this.frontService.presentLoading('Actualizando inventario...');
     const nuevo = Number(this.cantidad.value);
     let estado: string;
@@ -75,9 +75,9 @@ export class RegistroInventarioComponent implements OnInit {
       const detalle: DetalleOptions = { cantidad: nuevo, producto: this.producto };
       const sinPreparar = this.configuracionProducto.productos
         .find((item: any) => item.producto === ConfiguracionProducto.POLLO_SIN_PREPARAR);
-      await this.inventarioService.actualizarInventario([detalle], estado, 1, sinPreparar.id);
+      proceso = this.inventarioService.actualizarInventario([detalle], estado, 1, sinPreparar.id);
     } else {
-      await this.inventarioService.ingresoNuevos(this.producto.id, nuevo);
+      proceso = this.inventarioService.ingresoNuevos(this.producto.id, nuevo);
     }
     proceso.then(() => {
       this.modalController.dismiss();
@@ -151,8 +151,8 @@ export class RegistroInventarioComponent implements OnInit {
     });
   }
 
-  public async updateProducto() {
-    this.producto = (await this.productoService.producto(this.producto.id)).data() as ProductoOptions;
+  async updateProducto() {
+    this.producto = (await this.productoService.producto(this.idproducto)).data() as ProductoOptions;
     this.updateInventario();
     if (this.tipo) {
       this.updateSinPreparacion();

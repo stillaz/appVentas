@@ -59,7 +59,7 @@ export class ProductoService {
 
   productosInventario() {
     const productosCollection = this.angularFirestore
-      .collection<any>('productos', ref => ref.where('maneja_inventario', '==', true).orderBy('nombre'));
+      .collection<any>('productos', ref => ref.orderBy('fechainventario', 'desc'));
     return productosCollection.valueChanges();
   }
 

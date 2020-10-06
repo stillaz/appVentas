@@ -35,11 +35,6 @@ export class InventarioPage implements OnInit {
   private updateInventario() {
     this.productoService.productosInventario().subscribe(productos => {
       this.productos = productos;
-      this.productos.forEach(producto => {
-        if (producto.fechainventario) {
-          producto.actualizacion = moment(producto.fechainventario.toDate()).locale('es').calendar()
-        }
-      });
     });
   }
 
